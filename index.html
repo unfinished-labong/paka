@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>85일 수유거부·마녀시간 가이드</title>
+<style>
+  :root{
+    --bg: #14171c;
+    --panel: #1c2027;
+    --panel-2: #232830;
+    --line: #2c313b;
+    --amber: #e8a94d;
+    --amber-dim: #7a5a2c;
+    --blue: #7fa0bf;
+    --text: #edeae3;
+    --text-dim: #9aa1ad;
+    --text-faint: #6b7280;
+    --radius: 14px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg); color:var(--text);}
+  body{
+    font-family:-apple-system, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", Malgun Gothic, sans-serif;
+    line-height:1.72;
+    font-size:15.5px;
+    word-break:keep-all;
+    padding-bottom:96px;
+  }
+  a{color:inherit;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:30;
+    background:rgba(20,23,28,0.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:10px 16px 0 16px;
+  }
+  .topbar-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding-bottom:9px;
+  }
+  .brand{font-size:12.5px; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
+  .brand b{color:var(--amber); font-weight:700;}
+  .progress-wrap{height:2.5px; background:var(--line); position:relative;}
+  .progress-bar{height:100%; width:0%; background:var(--amber); transition:width .1s linear;}
+
+  .chips{
+    display:flex; gap:7px; overflow-x:auto; padding:10px 16px 12px 16px;
+    scrollbar-width:none;
+  }
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{
+    flex:0 0 auto;
+    font-size:12.5px; font-weight:600;
+    color:var(--text-dim);
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 13px;
+    white-space:nowrap;
+  }
+  .chip.active{ color:#1a140a; background:var(--amber); border-color:var(--amber); }
+
+  /* ---------- hero ---------- */
+  .hero{ padding:26px 18px 6px 18px; }
+  .eyebrow{
+    font-size:11.5px; letter-spacing:2px; color:var(--amber);
+    font-weight:700; margin-bottom:10px;
+  }
+  .hero h1{
+    font-size:22px; line-height:1.5; margin:0 0 12px 0; color:#fff;
+    letter-spacing:-0.2px;
+  }
+  .hero p{ color:var(--text-dim); font-size:14px; margin:0 0 20px 0;}
+
+  .stat-row{ display:flex; gap:10px; margin-bottom:8px; }
+  .stat{
+    flex:1; background:var(--panel); border:1px solid var(--line);
+    border-radius:var(--radius); padding:14px 12px;
+  }
+  .stat .num{ font-size:20px; font-weight:800; color:var(--amber); }
+  .stat .cap{ font-size:11.8px; color:var(--text-dim); margin-top:4px; line-height:1.5;}
+
+  /* ---------- section list ---------- */
+  .sections{ padding:22px 14px 0 14px; }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .card-head{
+    display:flex; align-items:center; gap:12px;
+    padding:15px 15px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .card-num{
+    flex:0 0 auto;
+    width:28px; height:28px; border-radius:8px;
+    background:var(--panel-2);
+    color:var(--amber);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:800;
+  }
+  .card-title{ flex:1; font-size:15px; font-weight:700; color:#fff; line-height:1.4;}
+  .chev{
+    flex:0 0 auto; color:var(--text-faint);
+    transition:transform .25s ease;
+    font-size:13px;
+  }
+  .card.open .chev{ transform:rotate(180deg); }
+  .card-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .32s ease;
+  }
+  .card-body-inner{
+    padding:0 16px 18px 16px;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .card-body-inner p{ margin:0 0 12px 0; color:#d7d4cc; font-size:14.3px; text-align:justify;}
+  .sub h4{
+    font-size:13.5px; color:var(--amber); margin:18px 0 8px 0;
+    font-weight:700;
+  }
+  .sub:first-child h4{ margin-top:2px; }
+
+  .callout{
+    background:rgba(232,169,77,0.08);
+    border-left:3px solid var(--amber);
+    padding:10px 12px; border-radius:0 8px 8px 0;
+    font-size:13.3px; color:#e8dcc7; margin:12px 0;
+  }
+  .callout b{ color:var(--amber); }
+
+  /* responsive "table" -> stacked cards */
+  .dtable{ margin:12px 0 6px 0; }
+  .dtable .cap{ font-size:12px; color:var(--text-faint); margin-bottom:8px; font-weight:600;}
+  .drow{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:11px 13px;
+    margin-bottom:8px;
+  }
+  .drow .k{
+    font-size:12px; color:var(--blue); font-weight:700; margin-bottom:3px;
+  }
+  .drow .v{ font-size:13.6px; color:#d7d4cc; margin-bottom:8px; }
+  .drow .v:last-child{ margin-bottom:0; }
+
+  ol.golden{ padding-left:0; list-style:none; counter-reset:g; margin:12px 0 6px 0;}
+  ol.golden li{
+    counter-increment:g;
+    position:relative;
+    padding:12px 14px 12px 42px;
+    background:var(--panel-2);
+    border-radius:10px;
+    margin-bottom:9px;
+    font-size:13.6px; color:#d7d4cc;
+  }
+  ol.golden li::before{
+    content:counter(g);
+    position:absolute; left:12px; top:12px;
+    width:22px; height:22px; border-radius:6px;
+    background:var(--amber); color:#1a140a;
+    font-weight:800; font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  ol.golden b{ color:#fff; display:block; margin-bottom:2px;}
+
+  ul.s5{ padding-left:0; list-style:none; margin:12px 0 6px 0; }
+  ul.s5 li{
+    background:var(--panel-2); border-radius:10px;
+    padding:11px 13px; margin-bottom:8px; font-size:13.6px; color:#d7d4cc;
+  }
+  ul.s5 b.tag{ display:block; color:var(--amber); font-weight:800; margin-bottom:4px; font-size:13px;}
+
+  ul.checklist{ padding-left:0; list-style:none; margin:10px 0 6px 0; }
+  ul.checklist li{
+    padding-left:22px; position:relative; margin-bottom:8px; font-size:13.6px; color:#d7d4cc;
+  }
+  ul.checklist li::before{ content:"✓"; position:absolute; left:0; color:var(--amber); font-weight:800;}
+
+  .conclusion-box{
+    background:var(--panel-2); border:1px solid var(--line);
+    border-radius:10px; padding:14px 15px; margin-top:4px;
+  }
+
+  .disclaimer{
+    margin:26px 16px 0 16px; padding:14px 15px;
+    border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--text-faint); line-height:1.6;
+  }
+
+  /* ---------- floating quick-help button + sheet ---------- */
+  .fab{
+    position:fixed; right:16px; bottom:18px; z-index:40;
+    background:var(--amber); color:#1a140a;
+    border:none; border-radius:999px;
+    padding:13px 18px;
+    font-size:14px; font-weight:800;
+    box-shadow:0 6px 20px rgba(232,169,77,0.35);
+    display:flex; align-items:center; gap:7px;
+  }
+  .fab .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:#1a140a; opacity:0.7;
+  }
+
+  .sheet-backdrop{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:50;
+  }
+  .sheet-backdrop.show{ opacity:1; pointer-events:auto; }
+  .sheet{
+    position:fixed; left:0; right:0; bottom:0; z-index:51;
+    background:var(--panel);
+    border-top:1px solid var(--line);
+    border-radius:20px 20px 0 0;
+    padding:8px 18px 22px 18px;
+    transform:translateY(100%);
+    transition:transform .3s cubic-bezier(.32,.72,0,1);
+    max-height:78vh; overflow-y:auto;
+  }
+  .sheet.show{ transform:translateY(0); }
+  .sheet-handle{
+    width:36px; height:4px; border-radius:2px; background:var(--line);
+    margin:8px auto 14px auto;
+  }
+  .sheet h3{ font-size:16.5px; color:#fff; margin:0 0 4px 0; }
+  .sheet .sub-cap{ font-size:12.5px; color:var(--text-dim); margin-bottom:16px; }
+  .quick-step{
+    display:flex; gap:12px; margin-bottom:16px;
+  }
+  .quick-step .qnum{
+    flex:0 0 auto; width:26px; height:26px; border-radius:50%;
+    background:var(--amber-dim); color:var(--amber);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:12px;
+  }
+  .quick-step .qtext b{ display:block; color:#fff; font-size:14px; margin-bottom:2px; }
+  .quick-step .qtext span{ font-size:13px; color:var(--text-dim); }
+  .sheet-close{
+    width:100%; padding:12px; margin-top:6px;
+    background:var(--panel-2); border:1px solid var(--line);
+    color:var(--text-dim); border-radius:10px; font-size:13.5px; font-weight:600;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-row">
+    <div class="brand"><b>85일 가이드</b> · 수유거부 &amp; 마녀시간</div>
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="hero">
+  <div class="eyebrow">INFANT CARE · 모바일 요약판</div>
+  <h1>수유량이 갑자기 줄고, 저녁마다 아기가 자지러지게 운다면</h1>
+  <p>생후 85일 전후는 반사적 수유에서 자발적 통제로 넘어가는 발달적 과도기입니다. 대부분 병이 아니라 &lsquo;성장통&rsquo;이며, 100~120일 무렵 자연스럽게 잦아듭니다.</p>
+  <div class="stat-row">
+    <div class="stat"><div class="num">600~700ml</div><div class="cap">기저귀 5~6개 이상 나온다면 충분한 양</div></div>
+    <div class="stat"><div class="num">3~4개월</div><div class="cap">영아산통·마녀시간이 자연 소실되는 시기</div></div>
+  </div>
+</div>
+
+<div class="sections" id="sections"></div>
+
+<div class="disclaimer">
+  본 문서는 정보 제공 및 교육적 목적으로만 작성되었습니다. 의료적 조언, 진단, 또는 치료를 대신할 수 없으며, 영유아의 건강이나 증상과 관련된 의학적 결정을 내릴 때는 반드시 소아청소년과 전문의나 자격을 갖춘 의료 전문가와 상담하십시오.
+</div>
+
+<button class="fab" id="fabBtn"><span class="dot"></span>지금 급해요</button>
+
+<div class="sheet-backdrop" id="sheetBackdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <h3>지금 당장 할 수 있는 것</h3>
+  <div class="sub-cap">우는 아기를 안고 있다면, 순서대로 시도해보세요</div>
+
+  <div class="quick-step">
+    <div class="qnum">1</div>
+    <div class="qtext"><b>불 끄고 조용한 방으로</b><span>어둡고 조용한 방으로 이동, 백색소음(60dB) 재생 — 자극 원천 차단</span></div>
+  </div>
+  <div class="quick-step">
+    <div class="qnum">2</div>
+    <div class="qtext"><b>5S 진정법</b><span>속싸개로 팔 감싸기 → 옆으로 안기 → &ldquo;쉬~&rdquo; 소리 → 리드미컬하게 흔들기 → 쪽쪽이 물리기</span></div>
+  </div>
+  <div class="quick-step">
+    <div class="qnum">3</div>
+    <div class="qtext"><b>수유는 절대 강압하지 않기</b><span>고개 돌리거나 짜증내면 즉시 젖병을 빼고 5~20분 쉬었다가 다시 시도</span></div>
+  </div>
+  <div class="quick-step">
+    <div class="qnum">4</div>
+    <div class="qtext"><b>피부 접촉 20~30분</b><span>맨가슴에 안고 심장 소리를 들려주면 옥시토신 분비로 진정 효과</span></div>
+  </div>
+  <div class="quick-step">
+    <div class="qnum">5</div>
+    <div class="qtext"><b>탈수만 아니면 괜찮다는 것 기억하기</b><span>소변 기저귀 5~6개 이상, 체중 유지 중이면 병원 응급 상황 아님</span></div>
+  </div>
+
+  <button class="sheet-close" id="sheetClose">닫기</button>
+</div>
+
+<script>
+const sections = [
+  {
+    title: "서론: 발달적 과도기와 의학적 &lsquo;정상&rsquo;의 괴리",
+    body: `
+      <p>생후 85일(약 12주 차)은 영아의 신체적, 인지적, 신경학적 발달이 폭발적으로 교차하는 중대한 전환기다. 이 시기 양육자가 가장 빈번하게 겪는 위기는 800~900ml 수준이던 일일 수유량이 600~700ml대로 급감하는 현상과, 늦은 오후·저녁 시간대에 어떤 방법으로도 달래지지 않는 극심한 보챔, 즉 &lsquo;마녀시간(Witching Hour)&rsquo;이다.</p>
+      <p>발열, 혈변, 탈수, 심각한 기력 저하 등 뚜렷한 병리적 징후가 없다면 의료진은 이를 &lsquo;영아산통(Infant Colic)&rsquo;으로 진단하며 특별한 개입이 불필요하다고 본다. 의학적으로는 질병이 아니지만, 매일 밤 씨름해야 하는 양육자에게는 결코 가볍지 않은 일상의 붕괴다.</p>
+      <p>이 보고서는 그 근본 원인을 발달심리학·신경생리학 관점에서 분석하고, 전 세계 수유 전문가와 부모들의 경험을 종합해 실전 대응 전략을 제시한다.</p>
+    `
+  },
+  {
+    title: "수유량 급감과 수유 기피의 메커니즘",
+    body: `
+      <div class="sub"><h4>2.1 반사적 섭취 → 자발적 통제</h4>
+      <p>생후 2개월까지는 &lsquo;빨기 반사&rsquo;로 주어지는 대로 반사적으로 삼킨다. 800~900ml는 실제 필요량이라기보다 반사적으로 삼켜진 양일 가능성이 크다. 2~4개월 사이 원시 반사가 소실되며 아기는 스스로 섭취를 결정하는 &lsquo;자발적 빨기&rsquo;를 시작한다. 600~700ml는 아기가 자신의 대사량에 맞게 섭취를 통제하기 시작했다는 긍정적 신호다.</p></div>
+      <div class="sub"><h4>2.2 인지적 도약과 시청각 과부하</h4>
+      <p>생후 11~12주는 &lsquo;원더윅스 도약 3단계&rsquo;에 해당한다. 조명, 소리, 옷 무늬까지 흥미로운 정보로 지각하게 되어 수유 중에도 소음·빛에 반응해 고개를 돌리는 &lsquo;산만형 수유 거부&rsquo;가 흔하다. 식욕 상실이 아니라 호기심이 식욕을 압도한 상태다.</p></div>
+      <div class="sub"><h4>2.3 유속에 대한 감각적 불일치</h4>
+      <p>흡철력이 강해지는 시기에 느린 유속 젖꼭지를 계속 쓰면 답답해하고, 너무 빠르면 사레·역류 공포로 거부한다. 모유도 생후 3개월 무렵 공급이 안정화되며 사출이 지연되는데, 즉각 보상에 익숙했던 아기는 이 지연을 견디지 못해 젖가슴을 밀어내기도 한다.</p></div>
+      <div class="sub"><h4>2.4 수유 압박이 낳은 수유 기피증</h4>
+      <p>거부 신호를 무시하고 강압적으로 먹이면 며칠 만에 &lsquo;수유 기피증(Feeding Aversion)&rsquo;이 형성될 수 있다. 수유 시간이 &lsquo;통제권을 박탈당하는 고통스러운 시간&rsquo;으로 조건화되어, 배가 고파도 수유 자세만 취해도 우는 방어 기제가 생긴다.</p></div>
+      <div class="dtable">
+        <div class="cap">발달 단계별 수유 거부 양상</div>
+        <div class="drow"><div class="k">반사적 단계 (0~2개월)</div><div class="v">뇌간의 원시 반사 지배 → 배앓이·가스 시에만 거부</div></div>
+        <div class="drow"><div class="k">자발적 단계 (3개월~)</div><div class="v">대뇌 피질 발달 → 고개 돌림, 입술 닫기, 짜증</div></div>
+        <div class="drow"><div class="k">인지적 도약기 (3개월~)</div><div class="v">시청각 발달 → 젖 물었다 뗐다 반복하며 두리번거림</div></div>
+        <div class="drow"><div class="k">수유 기피증 발생기</div><div class="v">강압 수유 누적 → 배고파도 각성 시 끝까지 거부</div></div>
+      </div>
+    `
+  },
+  {
+    title: "마녀시간과 영아산통의 역학 구조",
+    body: `
+      <p>&lsquo;마녀시간&rsquo;은 늦은 오후~저녁(오후 5~9시) 사이 원인 모를 극심한 보챔이 어떤 방법으로도 진정되지 않는 현상이다.</p>
+      <div class="sub"><h4>3.1 수면 부채와 코르티솔 과각성</h4>
+      <p>핵심 촉발 기제는 &lsquo;피로 누적&rsquo;이다. 생후 3개월 적정 각성 시간은 1.5~2시간 남짓인데, 낮잠을 거부하거나 30~40분 토끼잠을 자면 신경계 부하가 해소되지 않는다. 뇌는 피로를 위기로 인지해 코르티솔·아드레날린을 분비하고, 아기는 졸린데도 스스로 전원을 끄지 못한 채 울부짖는 과각성 상태에 빠진다.</p></div>
+      <div class="sub"><h4>3.2 수유 스트레스와 소화기계 악순환</h4>
+      <p>낮 동안 유속 불만이나 강압 수유로 스트레스를 받으면 긴장이 축적되고, 울고 뻗치는 과정에서 공기를 많이 삼켜(Aerophagia) 가스로 인한 복부 통증이 생긴다. 모유 수유아는 오후 5시 이후 프로락틴 저하로 사출이 느려져 좌절감이 더해진다.</p></div>
+      <div class="sub"><h4>3.3 백일의 기적</h4>
+      <p>영아산통은 생후 5~6주에 정점을 찍고, 생후 3~4개월(12~16주) 무렵 위장관·뇌신경계가 안정되며 자연 소실된다. 85일 차 마녀시간은 이 과도기의 마지막 요동이자 &lsquo;백일의 기적&rsquo;으로 가는 통과의례다.</p></div>
+    `
+  },
+  {
+    title: "글로벌 부모들의 행동 교정 실전 사례",
+    body: `
+      <div class="sub"><h4>4.1 감각 차단 &amp; 환경 재구성</h4>
+      <p>가장 어둡고 조용한 방에서 블라인드를 내리고 수유. 백색소음(약 60dB)으로 생활 소음을 마스킹하고, 얇은 수유 가리개로 시각 자극을 차단하면 효과적이라는 증언이 많다.</p></div>
+      <div class="sub"><h4>4.2 수유 자세 다변화 &amp; 동적 수유</h4>
+      <p>요람 자세 자체가 트라우마 방아쇠가 됐다면, 세워 안기·짐볼 바운스·아빠 품·바운서 반쯤 앉히기 등 &lsquo;동적 수유&rsquo;로 전혀 다른 물리적 환경을 제공하면 다시 젖병을 물기 시작하기도 한다. 측면 수유(Side-lying)도 저항을 낮춘다.</p></div>
+      <div class="sub"><h4>4.3 수면 연관 수유(Dream Feeding)</h4>
+      <p>반수면 상태에서는 원시 빨기 반사가 우세해져 거부 없이 먹는다. 응급처치로 유효하지만, 하루 총 400ml 미만 등 탈수 위험이 임박한 경우가 아니라면 장기적으로는 점진적으로 줄이는 것이 낫다.</p></div>
+      <div class="sub"><h4>4.4 로위나 베넷의 무압박 프로토콜</h4>
+      <p>가장 지지받는 전략. 젖병을 둘러싼 권력 투쟁을 종식시키고 통제권을 아기에게 돌려준다.</p>
+      <ol class="golden">
+        <li><b>압박의 완전한 배제</b>억지로 입 벌리기·턱 잡고 밀어넣기 중단</li>
+        <li><b>아기의 주도성 존중</b>젖꼭지로 입술을 터치해 자발적으로 물 때만 개시</li>
+        <li><b>거절 신호 즉각 수용</b>고개 돌리면 1초도 지체 없이 젖병을 빼고 5~20분 휴식</li>
+        <li><b>수유 세션의 단호한 종료</b>재차 거부하면 다음 텀(약 3시간 후)까지 억지로 먹이지 않음</li>
+      </ol>
+      <p>첫 2~3일은 수유량이 400ml 이하로 떨어져 공포스러울 수 있지만, 버텨내면 &lsquo;젖병이 위협이 아니다&rsquo;라는 확신을 얻고 일주일 내 수유량이 회복된다.</p></div>
+      <div class="sub"><h4>4.5 비판적 시각: 심리적 기피 vs 기계적 미숙</h4>
+      <p>수유 전문가 레이첼 오브라이언(IBCLC)은 거부가 항상 심리적 트라우마는 아니라고 지적한다. 원시 반사 소실 후 &lsquo;자발적으로 빨고 삼키는 기술&rsquo;을 아직 못 익혔을 수도 있다는 것. 이 경우 무조건 기다리기보다 턱·혀 협응을 돕는 수유 치료(Feeding therapy) 병행이 필요하다.</p></div>
+    `
+  },
+  {
+    title: "마녀시간 실전 진정 기법",
+    body: `
+      <div class="sub"><h4>5.1 5S 진정법 (하비 카프)</h4>
+      <ul class="s5">
+        <li><b class="tag">Swaddling 단단히 싸주기</b>속싸개로 팔을 몸통에 밀착 — 모로 반사로 깨는 것 방지</li>
+        <li><b class="tag">Side/Stomach 옆·엎드려 안기</b>똑바로 눕히면 불안감 유발 — 옆으로 안거나 팔뚝에 배가 닿게</li>
+        <li><b class="tag">Shushing 강한 백색소음</b>귀 가까이 60dB 이상 &ldquo;쉬~&rdquo; — 태내 혈류 소리와 유사해 코르티솔 억제</li>
+        <li><b class="tag">Swinging 리드미컬한 흔들기</b>짐볼 바운스, 무릎 구부리며 반동 — 전정 기관 자극으로 안정</li>
+        <li><b class="tag">Sucking 빨기 욕구 충족</b>공갈젖꼭지나 깨끗한 손가락 — 엔돌핀 분비로 천연 진통 효과</li>
+      </ul></div>
+      <div class="sub"><h4>5.2 피부 접촉과 신경계 리셋</h4>
+      <p>수유 목적 없이 맨가슴에 안아주면 옥시토신이 분비되어 불안이 급격히 낮아진다. 최소 20~30분 심장 소리를 들려주는 것이 좋다. 저녁 수유 전 따뜻한 목욕도 체온 하강을 통해 &lsquo;수면 시간&rsquo; 신호를 뇌에 전달하며, 목욕 후 복부 마사지는 가스 배출에 도움된다.</p></div>
+      <div class="sub"><h4>5.3 수면 의식과 일과표 재조정</h4>
+      <p>생후 3개월은 각성 시간 2시간을 넘기지 않는 것이 중요하다. 하품·눈썹 붉어짐 등 졸음 신호가 보이면 즉시 어둡게 하고 수면 의식에 돌입한다. 토끼잠을 자면 안아 올리거나 쪽쪽이로 수면 주기 연장을 시도한다. 낮 동안 수면 부채를 없애면 저녁 마녀시간 강도가 크게 약해진다.</p></div>
+    `
+  },
+  {
+    title: "물리적 수유 도구 재설계",
+    body: `
+      <div class="sub"><h4>6.1 젖꼭지 유속 조절</h4>
+      <p>생후 3개월은 대다수가 단계를 올려야 하는 시기다. 수유 시작 5분 이내 가슴을 치거나 물어뜯으면 유속이 느리다는 신호다.</p>
+      <div class="dtable">
+        <div class="cap">젖병 젖꼭지 단계 가이드</div>
+        <div class="drow"><div class="k">1단계 (느린 유속) · 0~3개월</div><div class="v">사출 민감·조산아에 적합. 빠는 힘이 세지면 짜증 유발</div></div>
+        <div class="drow"><div class="k">2단계 (중간 유속) · 3~6개월</div><div class="v">흡철력이 강해지는 백일 무렵 변경 권장</div></div>
+        <div class="drow"><div class="k">3단계 (빠른 유속) · 6개월 이상</div><div class="v">이유식 병행 시기, 먹는 양 급증 시 사용</div></div>
+      </div>
+      <p>변경 시 첫날은 젖병 하나에만 새 단계를 적용해 반응을 살피고, 5분 이상 사레 없이 안정적이면 2~3일에 걸쳐 서서히 전체 교체하는 점진적 적응이 안전하다.</p></div>
+      <div class="sub"><h4>6.2 모유·분유 혼합 전략</h4>
+      <p>모유 사출 지연이 문제라면 수유 전 2~3분 유방 마사지나 살짝 유축으로 미리 젖을 돌게 한다. 젖병을 강하게 거부한다면 졸린 틈에 공갈젖꼭지에서 젖병으로 바꿔치기하거나, 유두 보호기를 부착해 젖병처럼 느끼게 하는 방법도 시도해볼 수 있다.</p></div>
+    `
+  },
+  {
+    title: "부모의 심리적 안정과 모니터링",
+    body: `
+      <div class="sub"><h4>7.1 주관적 공포 → 객관적 지표</h4>
+      <p>600ml는 의학적으로 충분한 양이다. 숫자 집착 대신 소변 기저귀 5~6개 이상(투명~옅은 노랑), 1~2주 간격 체중 유지/우상향 여부에 집중하자. 성장 곡선은 직선이 아니며 도약기 이후 완만한 정체기는 자연스럽다.</p></div>
+      <div class="sub"><h4>7.2 기록을 통한 패턴 분석</h4>
+      <p>2~3일간 수유·수면·배변을 기록하면 원인이 보인다.</p>
+      <ul class="checklist">
+        <li>수유 거부 시간대 (오전/저녁 마녀시간 전후)</li>
+        <li>수유 직전 각성 시간 (깬 지 몇 분)</li>
+        <li>수유 당시 환경 (장소, 조명 밝기)</li>
+      </ul>
+      <p>예: &ldquo;깨어난 지 1시간 40분 넘으면 거부&rdquo;, &ldquo;오후 6시 이후 거실에서만 심함&rdquo; 같은 패턴을 찾으면 선제적으로 재우거나 수유 장소를 바꾸는 핀포인트 처방이 가능하다.</p></div>
+    `
+  },
+  {
+    title: "결론",
+    body: `
+      <div class="conclusion-box">
+      <p>수유량 급감과 마녀시간은 병리적 문제나 잘못된 양육 때문이 아니다. 반사의 세계를 떠나 스스로 인지하고 통제하려는 인지적·신경학적 도약 과정의 자연스러운 성장통이다.</p>
+      <p>강압적 수유를 멈추고 통제권을 아기에게 돌려주는 &lsquo;무압박 원칙&rsquo;을 신뢰하자. 유속 조절, 자극 차단 환경, 각성 시간 관리로 피로 누적을 막는 것이 핵심이며, 스킨십과 5S 진정법이 마녀시간의 고통을 크게 덜어준다.</p>
+      <p>생후 100~120일 무렵 신경계가 성숙하고 생체 리듬이 안착하면 이 폭풍은 잦아든다. 객관적 지표와 아기의 미소에 의지하며 평정심으로 이 시기를 지나면 아기는 더 단단하게 성장할 것이다.</p>
+      </div>
+    `
+  }
+];
+
+const sectionsEl = document.getElementById('sections');
+const chipsEl = document.getElementById('chips');
+
+sections.forEach((s, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'sec-' + i;
+  card.innerHTML = `
+    <div class="card-head" data-idx="${i}">
+      <div class="card-num">${i+1}</div>
+      <div class="card-title">${s.title}</div>
+      <div class="chev">▾</div>
+    </div>
+    <div class="card-body"><div class="card-body-inner">${s.body}</div></div>
+  `;
+  sectionsEl.appendChild(card);
+
+  const chip = document.createElement('div');
+  chip.className = 'chip';
+  chip.textContent = (i+1) + '장';
+  chip.dataset.idx = i;
+  chipsEl.appendChild(chip);
+});
+
+function toggleCard(idx, forceOpen){
+  const card = document.getElementById('sec-' + idx);
+  const body = card.querySelector('.card-body');
+  const isOpen = card.classList.contains('open');
+  if (forceOpen === true && isOpen) return;
+  if (isOpen && forceOpen !== true){
+    card.classList.remove('open');
+    body.style.maxHeight = null;
+  } else {
+    card.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+
+document.querySelectorAll('.card-head').forEach(h => {
+  h.addEventListener('click', () => toggleCard(parseInt(h.dataset.idx)));
+});
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    const idx = parseInt(c.dataset.idx);
+    toggleCard(idx, true);
+    document.getElementById('sec-' + idx).scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+
+// open first section by default
+toggleCard(0, true);
+
+// progress bar + active chip
+const progressBar = document.getElementById('progressBar');
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+  progressBar.style.width = scrolled + '%';
+
+  let activeIdx = 0;
+  sections.forEach((s,i) => {
+    const el = document.getElementById('sec-' + i);
+    const rect = el.getBoundingClientRect();
+    if (rect.top < 140) activeIdx = i;
+  });
+  document.querySelectorAll('.chip').forEach((c,i) => {
+    c.classList.toggle('active', i === activeIdx);
+  });
+});
+
+// quick-help sheet
+const fabBtn = document.getElementById('fabBtn');
+const sheet = document.getElementById('sheet');
+const backdrop = document.getElementById('sheetBackdrop');
+const sheetClose = document.getElementById('sheetClose');
+
+function openSheet(){
+  sheet.classList.add('show');
+  backdrop.classList.add('show');
+}
+function closeSheet(){
+  sheet.classList.remove('show');
+  backdrop.classList.remove('show');
+}
+fabBtn.addEventListener('click', openSheet);
+sheetClose.addEventListener('click', closeSheet);
+backdrop.addEventListener('click', closeSheet);
+</script>
+
+</body>
+</html>
