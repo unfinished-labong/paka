@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16151A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>모루</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" rel="stylesheet">
+<style>
+:root{
+  --ink:#16151A;
+  --ink-2:#1E1C24;
+  --ink-3:#2A2733;
+  --line:#3A3644;
+  --paper:#EDE6D6;
+  --paper-line:#C9BFA6;
+  --text:#E4E0D8;
+  --muted:#8B8578;
+  --verdigris:#6BA292;
+  --verdigris-dim:#3E6459;
+  --brass:#C9A961;
+  --rust:#B8674A;
+  --serif:'Gowun Batang', serif;
+  --sans:'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --mono:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background:var(--ink);color:var(--text);font-family:var(--sans);
+  font-size:15px;line-height:1.6;
+  display:flex;flex-direction:column;
+  overscroll-behavior-y:none;
+}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+textarea{resize:vertical}
+
+/* ---- shell ---- */
+header{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(var(--ink) 70%, transparent);
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;
+  display:flex;align-items:baseline;gap:10px;
+}
+header .mark{font-family:var(--serif);font-size:21px;letter-spacing:.14em;color:var(--paper)}
+header .sub{font-size:11px;color:var(--muted);letter-spacing:.08em}
+header .spacer{flex:1}
+header .act{font-size:13px;color:var(--verdigris);padding:4px 2px}
+main{flex:1;overflow-y:auto;padding:0 18px 28px;-webkit-overflow-scrolling:touch}
+nav{
+  display:flex;border-top:1px solid var(--line);background:var(--ink-2);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+nav button{flex:1;padding:11px 0 9px;font-size:11px;color:var(--muted);letter-spacing:.06em;
+  border-top:2px solid transparent;margin-top:-1px}
+nav button .g{display:block;font-family:var(--serif);font-size:17px;margin-bottom:2px;color:var(--muted)}
+nav button[aria-current="true"]{color:var(--paper)}
+nav button[aria-current="true"] .g{color:var(--verdigris)}
+nav button[aria-current="true"]{border-top-color:var(--verdigris)}
+
+/* ---- shared ---- */
+.eyebrow{font-size:11px;letter-spacing:.16em;color:var(--muted);margin:22px 0 10px}
+.empty{border:1px dashed var(--line);border-radius:3px;padding:26px 18px;text-align:center;color:var(--muted);font-size:13px}
+.empty b{display:block;color:var(--text);font-family:var(--serif);font-size:15px;margin-bottom:6px;font-weight:400}
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:14px 15px;margin-bottom:9px;display:block;width:100%;text-align:left}
+.card h3{margin:0 0 3px;font-family:var(--serif);font-weight:400;font-size:17px;color:var(--paper)}
+.card p{margin:0;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .tag{font-size:10.5px;color:var(--verdigris);letter-spacing:.06em}
+.btn{display:block;width:100%;padding:13px;border-radius:3px;background:var(--verdigris-dim);color:#EAF5F1;
+  font-size:14px;letter-spacing:.04em;border:1px solid var(--verdigris)}
+.btn.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+.btn.danger{background:transparent;color:var(--rust);border-color:#5A3830}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px}
+.row .btn{flex:1}
+label.f{display:block;margin:14px 0 0}
+label.f span{display:block;font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
+label.f input,label.f textarea,label.f select{
+  width:100%;background:var(--ink-2);border:1px solid var(--line);border-radius:3px;
+  padding:10px 11px;color:var(--text);outline:none}
+label.f input:focus,label.f textarea:focus,label.f select:focus{border-color:var(--verdigris)}
+label.f .hint{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:60;
+  background:var(--ink-3);border:1px solid var(--line);color:var(--text);
+  padding:10px 16px;border-radius:3px;font-size:13px;max-width:88vw;text-align:center}
+.err{border-color:#5A3830;color:#E8B4A2}
+
+/* ---- world sheet (the manuscript) ---- */
+.sheet{
+  background:var(--paper);color:#2A2620;border-radius:2px;
+  padding:22px 20px 24px;margin:4px 0 14px;
+  box-shadow:0 1px 0 #A99A7C, 0 14px 30px rgba(0,0,0,.45);
+  font-family:var(--serif);
+}
+.sheet .title{font-size:24px;line-height:1.3;margin:0 0 2px;font-weight:700}
+.sheet .oneline{font-size:13.5px;color:#5C5545;margin:0 0 18px;font-family:var(--sans)}
+.sheet .fld{border-top:1px solid var(--paper-line);padding-top:11px;margin-top:14px}
+.sheet .fld > span{display:block;font-family:var(--sans);font-size:10.5px;letter-spacing:.16em;color:#8A7F63;margin-bottom:6px}
+.sheet textarea,.sheet input{
+  width:100%;background:transparent;border:none;outline:none;color:#2A2620;
+  font-family:var(--serif);font-size:15px;line-height:1.75;padding:0;
+}
+.sheet textarea::placeholder,.sheet input::placeholder{color:#B0A588}
+.sheet .note{font-family:var(--sans);font-size:11px;color:#8A7F63;margin-top:4px}
+
+/* ---- harness ---- */
+.harness{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:16px 15px;margin-bottom:14px}
+.harness .total{font-family:var(--serif);font-size:15px;color:var(--paper);margin:0 0 14px;line-height:1.65}
+.axis{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.axis:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.axis .head{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.axis .nm{font-size:13.5px;color:var(--paper);flex:1}
+.pips{display:flex;gap:3px}
+.pip{width:13px;height:3px;background:var(--ink-3);border-radius:1px}
+.pip.on{background:var(--brass)}
+.pip.on.low{background:var(--rust)}
+.axis .dx{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.axis .fix{font-family:var(--serif);font-size:13.5px;background:var(--ink);border-left:2px solid var(--verdigris);
+  padding:9px 11px;color:var(--text);border-radius:0 3px 3px 0}
+.axis .apply{margin-top:7px;font-size:11.5px;color:var(--verdigris);letter-spacing:.06em;
+  border:1px solid var(--verdigris-dim);border-radius:3px;padding:6px 11px}
+.axis .apply[data-done="1"]{color:var(--muted);border-color:var(--line)}
+
+/* ---- chat ---- */
+.chatwrap{display:flex;flex-direction:column;height:100%}
+.statebar{
+  font-family:var(--mono);font-size:11px;line-height:1.55;
+  background:var(--ink-2);border:1px solid var(--line);border-radius:3px;
+  margin:2px 0 14px;overflow:hidden;
+}
+.statebar .sb-head{display:flex;align-items:center;gap:8px;padding:9px 12px;color:var(--verdigris);letter-spacing:.08em}
+.statebar .sb-head .dot{width:5px;height:5px;border-radius:50%;background:var(--verdigris)}
+.statebar .sb-head .chev{margin-left:auto;color:var(--muted)}
+.statebar .sb-body{padding:0 12px 12px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.statebar .sb-body b{color:var(--text);font-weight:400}
+.statebar textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:3px;
+  font-family:var(--mono);font-size:11px;padding:9px;min-height:150px;outline:none}
+.msg{margin-bottom:16px;animation:rise .28s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.msg.me{padding-left:26px}
+.msg.me .body{background:var(--ink-3);border-radius:3px;padding:10px 13px;font-size:14.5px}
+.msg.ai .who{font-family:var(--serif);font-size:12px;color:var(--brass);letter-spacing:.06em;margin-bottom:5px}
+.msg.ai .body{font-size:15px;line-height:1.85;white-space:pre-wrap}
+.msg.me .body{white-space:pre-wrap}
+.msg.ai .body em{color:var(--muted);font-style:italic}
+.composer{position:sticky;bottom:0;background:var(--ink);padding:8px 0 calc(env(safe-area-inset-bottom) + 6px)}
+.composer .box{display:flex;gap:8px;align-items:flex-end;
+  background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:7px 8px 7px 11px}
+.composer textarea{flex:1;background:none;border:none;outline:none;max-height:130px;min-height:24px;line-height:1.5;padding:3px 0}
+.composer .send{width:34px;height:34px;border-radius:3px;background:var(--verdigris-dim);
+  border:1px solid var(--verdigris);color:#EAF5F1;font-size:15px;flex:none}
+.composer .tools{display:flex;gap:14px;padding:8px 3px 0;font-size:11.5px;color:var(--muted);letter-spacing:.05em}
+.thinking{color:var(--muted);font-size:13px;font-style:italic}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mark">모루</div>
+  <div class="sub" id="hsub"></div>
+  <div class="spacer"></div>
+  <button class="act" id="hact" hidden></button>
+</header>
+
+<main id="view"></main>
+
+<nav>
+  <button data-tab="worlds"><span class="g">世</span>세계</button>
+  <button data-tab="chars"><span class="g">人</span>인물</button>
+  <button data-tab="chats"><span class="g">話</span>대화</button>
+  <button data-tab="settings"><span class="g">具</span>설정</button>
+</nav>
+
+<script>
+/* ============================================================
+   저장소
+============================================================ */
+const DB = {
+  get(k, d){ try{ return JSON.parse(localStorage.getItem('moru:'+k)) ?? d; }catch(e){ return d; } },
+  set(k, v){ localStorage.setItem('moru:'+k, JSON.stringify(v)); }
+};
+let S = {
+  settings: DB.get('settings', {key:'', base:'https://api.deepseek.com', model:'deepseek-chat', keep:14, autostate:true}),
+  worlds:   DB.get('worlds', []),
+  chars:    DB.get('chars', []),
+  chats:    DB.get('chats', []),
+  tab:'worlds', open:null, busy:false
+};
+const save = k => DB.set(k, S[k]);
+const uid  = () => Math.random().toString(36).slice(2,10);
+const esc  = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function toast(msg, isErr){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast' + (isErr?' err':'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), isErr?5200:2400);
+}
+
+/* ============================================================
+   모델 호출
+============================================================ */
+async function llm(messages, opt={}){
+  const st = S.settings;
+  if(!st.key) throw new Error('설정 탭에서 API 키를 먼저 넣어주세요.');
+  const body = {
+    model: st.model, messages,
+    temperature: opt.temperature ?? 0.9,
+    stream: !!opt.onDelta
+  };
+  if(opt.json) body.response_format = {type:'json_object'};
+  let res;
+  try{
+    res = await fetch(st.base.replace(/\/$/,'') + '/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+st.key},
+      body: JSON.stringify(body)
+    });
+  }catch(e){
+    throw new Error('서버에 닿지 못했습니다. 브라우저가 직접 호출을 막는 경우(CORS)라 설정 탭의 주소를 프록시로 바꿔야 합니다.');
+  }
+  if(!res.ok){
+    const t = await res.text().catch(()=> '');
+    throw new Error('모델이 요청을 거절했습니다 ('+res.status+'). '+t.slice(0,160));
+  }
+  if(!opt.onDelta){
+    const d = await res.json();
+    return d.choices?.[0]?.message?.content ?? '';
+  }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf='', full='';
+  while(true){
+    const {done, value} = await reader.read();
+    if(done) break;
+    buf += dec.decode(value, {stream:true});
+    const lines = buf.split('\n'); buf = lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data:')) continue;
+      const p = line.slice(5).trim();
+      if(!p || p === '[DONE]') continue;
+      try{
+        const j = JSON.parse(p);
+        const d = j.choices?.[0]?.delta?.content;
+        if(d){ full += d; opt.onDelta(full); }
+      }catch(e){}
+    }
+  }
+  return full;
+}
+
+function parseJSON(txt){
+  const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+  if(s < 0 || e < 0) throw new Error('모델이 형식에 맞지 않는 답을 보냈습니다. 다시 시도해 주세요.');
+  return JSON.parse(txt.slice(s, e+1));
+}
+
+/* ============================================================
+   세계 — 데이터 모양
+============================================================ */
+const FIELDS = [
+  ['시대와장소','시대와 장소', 'line'],
+  ['톤','톤과 분위기', 'line'],
+  ['세계규칙','이 세계의 법칙', 'list'],
+  ['갈등축','갈등의 축', 'list'],
+  ['세력','세력  ―  이름 | 목표 | 부딪히는 것', 'list'],
+  ['지역','장소  ―  이름 | 이곳의 특징', 'list'],
+  ['감각디테일','감각의 결', 'list'],
+  ['용어','이 세계의 말  ―  말 | 뜻', 'list']
+];
+const blankWorld = () => ({id:uid(), 제목:'', 기본설정:'', 한줄:'', 시대와장소:'', 톤:'',
+  세계규칙:[], 갈등축:[], 세력:[], 지역:[], 감각디테일:[], 용어:[], harness:null, 만든날:Date.now()});
+
+const asLines = v => Array.isArray(v)
+  ? v.map(x => typeof x === 'string' ? x : Object.values(x).filter(Boolean).join(' | ')).join('\n')
+  : String(v||'');
+const fromLines = t => t.split('\n').map(s=>s.trim()).filter(Boolean);
+
+function worldText(w){
+  let out = `제목: ${w.제목}\n한 줄: ${w.한줄}\n시대와 장소: ${w.시대와장소}\n톤: ${w.톤}\n`;
+  for(const [k,label] of FIELDS){
+    if(k==='시대와장소'||k==='톤') continue;
+    const l = asLines(w[k]);
+    if(l) out += `\n[${label.split('  ―')[0]}]\n${l}\n`;
+  }
+  return out.trim();
+}
+function charText(c){
+  return `이름: ${c.이름}\n한 줄: ${c.한줄}\n성격: ${c.성격}\n말투: ${c.말투}\n배경: ${c.배경}` +
+    (c.예시대사 ? `\n예시 대사:\n${c.예시대사}` : '');
+}
+
+/* ============================================================
+   세계 생성 · 견고성 점검
+============================================================ */
+const AXES = ['갈등축','제약','세력 균형','감각','판돈','미해결','톤 일관성','고유한 말'];
+
+async function buildWorld(w){
+  const sys = `너는 인터랙티브 소설의 세계를 짓는 조력자다. 사용자가 준 제목과 메모를 읽고, 이야기를 굴릴 수 있을 만큼 구체적인 세계를 만든다.
+지켜야 할 것:
+- 사용자의 메모에 있는 것은 절대 바꾸지 말고, 빈 곳만 채운다.
+- 추상어를 피한다. "혼란스러운 시대"가 아니라 무엇이 어떻게 무너졌는지 쓴다.
+- 규칙에는 반드시 "할 수 없는 일"을 넣는다. 무엇이든 가능한 세계는 긴장이 없다.
+- 세력은 목표가 서로 부딪히도록 짠다.
+- 감각디테일은 눈·귀·코·살갗으로 잡히는 것만 쓴다.
+- 한국어로 쓴다.
+아래 형태의 JSON만 출력한다. 설명이나 마크다운 없이 JSON 하나만:
+{"한줄":"","시대와장소":"","톤":"","세계규칙":["",""],"갈등축":["",""],"세력":[{"이름":"","목표":"","부딪히는것":""}],"지역":[{"이름":"","특징":""}],"감각디테일":["",""],"용어":[{"말":"","뜻":""}]}
+세계규칙 4~6개, 갈등축 2~3개, 세력 3개, 지역 3~4개, 감각디테일 4~5개, 용어 4~6개.`;
+  const usr = `제목: ${w.제목}\n\n메모:\n${w.기본설정}` +
+    (worldText(w).length > 60 ? `\n\n이미 정해진 것(바꾸지 말 것):\n${worldText(w)}` : '');
+  const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:1.0}));
+  Object.assign(w, {
+    한줄:j.한줄||w.한줄, 시대와장소:j.시대와장소||w.시대와장소, 톤:j.톤||w.톤,
+    세계규칙:j.세계규칙||[], 갈등축:j.갈등축||[],
+    세력:(j.세력||[]).map(x=>`${x.이름} | ${x.목표} | ${x.부딪히는것||''}`),
+    지역:(j.지역||[]).map(x=>`${x.이름} | ${x.특징}`),
+    감각디테일:j.감각디테일||[],
+    용어:(j.용어||[]).map(x=>`${x.말} | ${x.뜻}`)
+  });
+  return w;
+}
+
+async function runHarness(w){
+  const sys = `너는 세계관을 점검하는 편집자다. 아래 세계가 몰입할 만한 이야기를 굴릴 수 있는지 축별로 본다.
+축과 그 뜻:
+- 갈등축: 무엇이 무엇과 부딪히는지 분명한가
+- 제약: 할 수 없는 일이 분명한가
+- 세력 균형: 이해가 다른 집단이 둘 이상 있고 힘이 한쪽으로 쏠리지 않는가
+- 감각: 눈·귀·코로 잡히는 구체가 있는가
+- 판돈: 이야기의 주인공이 잃을 것이 있는가
+- 미해결: 아직 답이 없는 질문이 남아 있는가
+- 톤 일관성: 정해둔 것들이 하나의 온도를 유지하는가
+- 고유한 말: 이 세계에서만 통하는 이름과 말이 있는가
+점수는 0~5. 후하게 주지 말고, 부족하면 낮게 준다.
+보완은 그대로 세계 설정에 붙여 넣을 수 있는 완성된 한 문장으로 쓴다. 이미 충분한 축이면 보완은 빈 문자열로 둔다.
+반영칸은 다음 중 하나: 세계규칙, 갈등축, 세력, 지역, 감각디테일, 용어. 세력은 "이름 | 목표 | 부딪히는것", 지역은 "이름 | 특징", 용어는 "말 | 뜻" 형식으로 보완을 쓴다.
+한국어. JSON만 출력:
+{"총평":"","축":[{"이름":"갈등축","점수":3,"진단":"","보완":"","반영칸":"갈등축"}]}
+축은 위 여덟 개를 모두 포함한다.`;
+  const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:worldText(w)}], {json:true, temperature:0.4}));
+  w.harness = j; return w;
+}
+
+/* ============================================================
+   대화 — 프롬프트 조립
+============================================================ */
+const blankState = () => ({장면:'', 시각:'', 인물:[], 주인공평판:'', 최근사건:[], 미해결:[], 소지:[]});
+
+function stateText(st){
+  const L = [];
+  if(st.장면) L.push(`장면: ${st.장면}`);
+  if(st.시각) L.push(`시각: ${st.시각}`);
+  if(st.인물?.length) L.push('인물:\n' + st.인물.map(p=>`  - ${p.이름}: ${p.상태}${p.태도?' / '+p.태도:''}`).join('\n'));
+  if(st.주인공평판) L.push(`주인공을 보는 눈: ${st.주인공평판}`);
+  if(st.최근사건?.length) L.push('벌어진 일:\n' + st.최근사건.map(x=>`  - ${x}`).join('\n'));
+  if(st.미해결?.length) L.push('아직 안 풀린 것:\n' + st.미해결.map(x=>`  - ${x}`).join('\n'));
+  if(st.소지?.length) L.push(`지닌 것: ${st.소지.join(', ')}`);
+  return L.join('\n') || '(아직 없음)';
+}
+
+function buildSystem(chat){
+  const w = S.worlds.find(x=>x.id===chat.worldId);
+  const c = S.chars.find(x=>x.id===chat.charId);
+  return `너는 인터랙티브 소설을 진행한다. 아래 인물을 연기하고, 그 인물이 없는 장면은 서술자로 이어간다.
+
+━ 세계 ━
+${w ? worldText(w) : '(세계 없음)'}
+
+━ 연기할 인물 ━
+${c ? charText(c) : '(인물 없음)'}
+
+━ 지금 상태 ━
+${stateText(chat.state)}
+
+━ 반드시 지킬 것 ━
+1. "지금 상태"가 가장 최신 사실이다. 앞선 대화 기록과 어긋나면 상태 쪽을 따른다.
+2. 상태에 죽었다고 적힌 인물은 다시 등장하지 않는다. 다친 인물은 다친 채로 움직인다.
+3. 사용자가 보여준 힘·평판·앞선 행동은 주변 인물의 반응에 반드시 반영한다. 압도당한 쪽이 아무 일 없었다는 듯 덤비지 않는다.
+4. 사용자의 대사나 행동을 대신 쓰지 않는다. 사용자 차례에서 멈춘다.
+5. 갈등을 억지로 만들지 않는다. 상황이 조용하면 조용한 채로 둔다.
+6. 서술은 *별표* 사이에, 대사는 그냥 쓴다. 3~6문장. 한국어.`;
+}
+
+async function updateState(chat){
+  const sys = `너는 이야기의 현재 상태를 기록한다. 기존 상태와 방금 오간 대화를 읽고, 갱신된 상태 전체를 JSON으로 낸다.
+- 바뀌지 않은 항목은 그대로 옮겨 적는다. 빠뜨리면 기억이 사라진다.
+- 인물의 죽음·부상·태도 변화는 반드시 반영한다.
+- 최근사건은 최대 6개, 오래된 것부터 지운다. 판을 뒤집은 사건은 남긴다.
+- 주인공평판에는 주변 인물이 주인공을 어떻게 보는지 한 줄로 적는다.
+- 한국어. JSON만:
+{"장면":"","시각":"","인물":[{"이름":"","상태":"","태도":""}],"주인공평판":"","최근사건":[],"미해결":[],"소지":[]}`;
+  const last = chat.msgs.slice(-4).map(m=>`${m.role==='user'?'사용자':'이야기'}: ${m.content}`).join('\n\n');
+  const usr = `기존 상태:\n${JSON.stringify(chat.state, null, 1)}\n\n방금 오간 대화:\n${last}`;
+  chat.state = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:0.2}));
+}
+
+/* ============================================================
+   화면
+============================================================ */
+const view = document.getElementById('view');
+const hsub = document.getElementById('hsub');
+const hact = document.getElementById('hact');
+
+function render(){
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-current', String(b.dataset.tab===S.tab)));
+  hact.hidden = true; hact.onclick = null; hsub.textContent = '';
+  ({worlds:vWorlds, chars:vChars, chats:vChats, settings:vSettings})[S.tab]();
+}
+function topAction(label, fn){ hact.hidden=false; hact.textContent=label; hact.onclick=fn; }
+function go(tab, open){ S.tab=tab; S.open=open??null; view.scrollTop=0; render(); }
+
+/* ---------- 세계 ---------- */
+function vWorlds(){
+  if(S.open){ return worldSheet(S.worlds.find(w=>w.id===S.open)); }
+  hsub.textContent = '지은 세계';
+  topAction('새 세계', ()=>{ const w=blankWorld(); S.worlds.unshift(w); save('worlds'); go('worlds', w.id); });
+  view.innerHTML = S.worlds.length ? '' :
+    `<div class="empty" style="margin-top:40px"><b>아직 세계가 없습니다</b>제목과 몇 줄의 메모만 있으면<br>나머지는 같이 채워 나갑니다.</div>`;
+  S.worlds.forEach(w=>{
+    const b = document.createElement('button'); b.className='card';
+    b.innerHTML = `<h3>${esc(w.제목||'제목 없음')}</h3><p>${esc(w.한줄||w.기본설정||'아직 비어 있습니다')}</p>`
+      + (w.harness ? `<div class="tag" style="margin-top:6px">견고성 ${w.harness.축.reduce((a,x)=>a+x.점수,0)} / 40</div>`:'');
+    b.onclick = ()=> go('worlds', w.id);
+    view.appendChild(b);
+  });
+}
+
+function worldSheet(w){
+  if(!w) return go('worlds');
+  hsub.textContent = '세계';
+  topAction('← 목록', ()=> go('worlds'));
+  view.innerHTML = '';
+
+  const sheet = document.createElement('div'); sheet.className='sheet';
+  const ti = document.createElement('input');
+  ti.className='title'; ti.value = w.제목; ti.placeholder='세계의 이름';
+  ti.style.cssText='font-size:24px;font-weight:700;line-height:1.3;margin-bottom:2px';
+  ti.oninput = ()=>{ w.제목 = ti.value; save('worlds'); };
+  sheet.appendChild(ti);
+
+  const one = document.createElement('input');
+  one.className='oneline'; one.value = w.한줄; one.placeholder='한 줄로 말하면';
+  one.style.cssText='font-family:var(--sans);font-size:13.5px;color:#5C5545;margin-bottom:14px';
+  one.oninput = ()=>{ w.한줄 = one.value; save('worlds'); };
+  sheet.appendChild(one);
+
+  const memo = fld('처음 적은 메모', 'textarea', w.기본설정, v=>{ w.기본설정=v; save('worlds'); },
+    '여기에 몇 줄만 적고 아래 단추를 누르면 나머지를 채웁니다.');
+  sheet.appendChild(memo);
+
+  FIELDS.forEach(([k,label,kind])=>{
+    sheet.appendChild(fld(label, kind==='line'?'input':'textarea', kind==='line'? w[k] : asLines(w[k]),
+      v=>{ w[k] = kind==='line' ? v : fromLines(v); save('worlds'); }));
+  });
+  view.appendChild(sheet);
+
+  const gen = document.createElement('button');
+  gen.className='btn'; gen.textContent='세부 설정 채우기';
+  gen.onclick = async ()=>{
+    if(!w.제목 && !w.기본설정) return toast('제목이나 메모를 먼저 적어주세요.', true);
+    await guard(gen, '짓는 중…', async ()=>{ await buildWorld(w); save('worlds'); render(); toast('채웠습니다. 마음에 안 드는 곳은 직접 고치세요.'); });
+  };
+  view.appendChild(gen);
+
+  const row = document.createElement('div'); row.className='row'; row.style.marginTop='8px';
+  const chk = document.createElement('button');
+  chk.className='btn ghost'; chk.textContent='견고성 점검';
+  chk.onclick = ()=> guard(chk, '읽는 중…', async ()=>{ await runHarness(w); save('worlds'); render(); });
+  row.appendChild(chk);
+  const del = document.createElement('button');
+  del.className='btn danger'; del.textContent='세계 지우기';
+  del.onclick = ()=>{ if(confirm('이 세계를 지웁니다. 되돌릴 수 없습니다.')){
+    S.worlds = S.worlds.filter(x=>x.id!==w.id); save('worlds'); go('worlds'); } };
+  row.appendChild(del);
+  view.appendChild(row);
+
+  if(w.harness) view.appendChild(harnessEl(w));
+}
+
+function fld(label, tag, val, onInput, note){
+  const d = document.createElement('div'); d.className='fld';
+  const s = document.createElement('span'); s.textContent = label; d.appendChild(s);
+  const el = document.createElement(tag);
+  el.value = val || '';
+  el.placeholder = tag==='textarea' ? '한 줄에 하나씩' : '—';
+  if(tag==='textarea'){
+    el.rows = Math.max(2, String(val||'').split('\n').length);
+    el.style.overflow='hidden';
+    const fit = ()=>{ el.style.height='auto'; el.style.height = el.scrollHeight+'px'; };
+    setTimeout(fit, 0); el.addEventListener('input', fit);
+  }
+  el.addEventListener('input', ()=> onInput(el.value));
+  d.appendChild(el);
+  if(note){ const n=document.createElement('div'); n.className='note'; n.textContent=note; d.appendChild(n); }
+  return d;
+}
+
+function harnessEl(w){
+  const h = w.harness;
+  const box = document.createElement('div'); box.className='harness';
+  box.style.marginTop='16px';
+  const total = h.축.reduce((a,x)=>a+x.점수,0);
+  const eb = document.createElement('div'); eb.className='eyebrow'; eb.style.margin='0 0 10px';
+  eb.textContent = `견고성  ${total} / 40`;
+  box.appendChild(eb);
+  const t = document.createElement('p'); t.className='total'; t.textContent = h.총평; box.appendChild(t);
+
+  h.축.forEach((a, i)=>{
+    const d = document.createElement('div'); d.className='axis';
+    const pips = Array.from({length:5}, (_,n)=>
+      `<div class="pip ${n < a.점수 ? 'on' : ''} ${a.점수<=2?'low':''}"></div>`).join('');
+    d.innerHTML = `<div class="head"><div class="nm">${esc(a.이름)}</div><div class="pips">${pips}</div></div>
+      <p class="dx">${esc(a.진단)}</p>`;
+    if(a.보완){
+      const f = document.createElement('div'); f.className='fix'; f.textContent = a.보완; d.appendChild(f);
+      const ap = document.createElement('button'); ap.className='apply'; ap.textContent='세계에 반영';
+      ap.onclick = ()=>{
+        const key = FIELDS.some(([k])=>k===a.반영칸) ? a.반영칸 : '세계규칙';
+        if(Array.isArray(w[key])) w[key] = [...w[key], a.보완]; else w[key] = (w[key]?w[key]+' ':'') + a.보완;
+        save('worlds'); ap.dataset.done='1'; ap.textContent='반영했습니다';
+        toast(`${key}에 넣었습니다.`);
+      };
+      d.appendChild(ap);
+    }
+    box.appendChild(d);
+  });
+  return box;
+}
+
+/* ---------- 인물 ---------- */
+const blankChar = () => ({id:uid(), 이름:'', 한줄:'', 성격:'', 말투:'', 배경:'', 첫인사:'', 예시대사:'', worldId:''});
+
+function vChars(){
+  if(S.open){ return charSheet(S.chars.find(c=>c.id===S.open)); }
+  hsub.textContent = '인물';
+  topAction('새 인물', ()=>{ const c=blankChar(); S.chars.unshift(c); save('chars'); go('chars', c.id); });
+  view.innerHTML = S.chars.length ? '' :
+    `<div class="empty" style="margin-top:40px"><b>아직 인물이 없습니다</b>세계를 하나 고르고 이름만 정하면<br>나머지 초안은 만들어 드립니다.</div>`;
+  S.chars.forEach(c=>{
+    const w = S.worlds.find(x=>x.id===c.worldId);
+    const b = document.createElement('button'); b.className='card';
+    b.innerHTML = `<h3>${esc(c.이름||'이름 없음')}</h3><p>${esc(c.한줄||'아직 비어 있습니다')}</p>`
+      + (w?`<div class="tag" style="margin-top:6px">${esc(w.제목)}</div>`:'');
+    b.onclick = ()=> go('chars', c.id);
+    view.appendChild(b);
+  });
+}
+
+function charSheet(c){
+  if(!c) return go('chars');
+  hsub.textContent = '인물';
+  topAction('← 목록', ()=> go('chars'));
+  view.innerHTML = '';
+  const F = [['이름','이름','input'],['한줄','한 줄로 말하면','input'],['성격','성격','textarea'],
+    ['말투','말투','textarea'],['배경','배경','textarea'],['첫인사','첫 장면','textarea'],['예시대사','예시 대사','textarea']];
+
+  const ws = document.createElement('label'); ws.className='f';
+  ws.innerHTML = `<span>속한 세계</span>`;
+  const sel = document.createElement('select');
+  sel.innerHTML = `<option value="">— 없음 —</option>` +
+    S.worlds.map(w=>`<option value="${w.id}" ${w.id===c.worldId?'selected':''}>${esc(w.제목||'제목 없음')}</option>`).join('');
+  sel.onchange = ()=>{ c.worldId = sel.value; save('chars'); };
+  ws.appendChild(sel); view.appendChild(ws);
+
+  F.forEach(([k,label,tag])=>{
+    const l = document.createElement('label'); l.className='f';
+    l.innerHTML = `<span>${label}</span>`;
+    const el = document.createElement(tag);
+    if(tag==='textarea') el.rows = k==='배경'||k==='첫인사' ? 4 : 3;
+    el.value = c[k] || '';
+    el.addEventListener('input', ()=>{ c[k]=el.value; save('chars'); });
+    l.appendChild(el); view.appendChild(l);
+  });
+
+  const gen = document.createElement('button');
+  gen.className='btn'; gen.textContent='초안 만들기'; gen.style.marginTop='18px';
+  gen.onclick = ()=>{
+    if(!c.이름 && !c.한줄) return toast('이름이나 한 줄 소개를 먼저 적어주세요.', true);
+    guard(gen, '짓는 중…', async ()=>{
+      const w = S.worlds.find(x=>x.id===c.worldId);
+      const sys = `너는 인터랙티브 소설의 인물을 짓는다. 세계와 어울리되 납작하지 않게 만든다.
+- 성격에는 반드시 약점이나 모순을 하나 넣는다.
+- 말투는 흉내 낼 수 있게 구체적으로 쓴다. 어미, 자주 쓰는 말, 침묵하는 순간.
+- 첫 장면은 사용자가 바로 끼어들 수 있는 상황으로, *서술*과 대사를 섞어 3~5문장.
+- 예시 대사는 상황이 다른 세 줄.
+- 한국어. JSON만: {"한줄":"","성격":"","말투":"","배경":"","첫인사":"","예시대사":""}`;
+      const usr = (w?`세계:\n${worldText(w)}\n\n`:'') + `인물:\n${charText(c)}`;
+      const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:1.0}));
+      Object.assign(c, {한줄:j.한줄||c.한줄, 성격:j.성격, 말투:j.말투, 배경:j.배경, 첫인사:j.첫인사, 예시대사:j.예시대사});
+      save('chars'); render(); toast('만들었습니다. 고치고 싶은 곳은 바로 고치세요.');
+    });
+  };
+  view.appendChild(gen);
+
+  const row = document.createElement('div'); row.className='row'; row.style.marginTop='8px';
+  const start = document.createElement('button');
+  start.className='btn ghost'; start.textContent='이 인물과 대화 시작';
+  start.onclick = ()=>{
+    if(!c.이름) return toast('이름을 먼저 정해주세요.', true);
+    const chat = {id:uid(), charId:c.id, worldId:c.worldId, 제목:c.이름, state:blankState(),
+      msgs: c.첫인사 ? [{role:'assistant', content:c.첫인사}] : [], 연날:Date.now()};
+    S.chats.unshift(chat); save('chats'); go('chats', chat.id);
+  };
+  row.appendChild(start);
+  const del = document.createElement('button');
+  del.className='btn danger'; del.textContent='인물 지우기';
+  del.onclick = ()=>{ if(confirm('이 인물을 지웁니다.')){ S.chars=S.chars.filter(x=>x.id!==c.id); save('chars'); go('chars'); } };
+  row.appendChild(del);
+  view.appendChild(row);
+}
+
+/* ---------- 대화 ---------- */
+function vChats(){
+  if(S.open){ return chatView(S.chats.find(c=>c.id===S.open)); }
+  hsub.textContent = '대화';
+  view.innerHTML = S.chats.length ? '' :
+    `<div class="empty" style="margin-top:40px"><b>아직 대화가 없습니다</b>인물 탭에서 인물을 고르고<br>대화 시작을 누르세요.</div>`;
+  S.chats.forEach(ch=>{
+    const c = S.chars.find(x=>x.id===ch.charId);
+    const last = ch.msgs[ch.msgs.length-1];
+    const b = document.createElement('button'); b.className='card';
+    b.innerHTML = `<h3>${esc(c?.이름 || ch.제목)}</h3><p>${esc((last?.content||'아직 비어 있습니다').replace(/\*/g,''))}</p>
+      <div class="tag" style="margin-top:6px">${ch.msgs.length}턴</div>`;
+    b.onclick = ()=> go('chats', ch.id);
+    view.appendChild(b);
+  });
+}
+
+function chatView(chat){
+  if(!chat) return go('chats');
+  const c = S.chars.find(x=>x.id===chat.charId);
+  hsub.textContent = c?.이름 || '대화';
+  topAction('← 목록', ()=> go('chats'));
+  view.innerHTML = '';
+
+  /* 상태 패널 */
+  const sb = document.createElement('div'); sb.className='statebar';
+  const shown = DB.get('sbopen', false);
+  sb.innerHTML = `<button class="sb-head" style="width:100%"><div class="dot"></div>지금 상태<div class="chev">${shown?'닫기':'보기'}</div></button>`;
+  const body = document.createElement('div'); body.className='sb-body'; body.hidden = !shown;
+  const paint = ()=>{ body.textContent = stateText(chat.state); };
+  paint();
+  const edit = document.createElement('button');
+  edit.className='apply'; edit.style.cssText='margin-top:9px;font-size:11px;color:var(--verdigris);border:1px solid var(--verdigris-dim);border-radius:3px;padding:5px 10px';
+  edit.textContent = '직접 고치기';
+  edit.onclick = ()=>{
+    const ta = document.createElement('textarea');
+    ta.value = JSON.stringify(chat.state, null, 1);
+    const ok = document.createElement('button');
+    ok.className='apply'; ok.style.cssText=edit.style.cssText; ok.textContent='저장';
+    ok.onclick = ()=>{ try{ chat.state = JSON.parse(ta.value); save('chats'); body.innerHTML=''; paint(); body.appendChild(edit); toast('고쳤습니다.'); }
+      catch(e){ toast('JSON 형식이 맞지 않습니다.', true); } };
+    body.innerHTML=''; body.appendChild(ta); body.appendChild(ok);
+  };
+  body.appendChild(edit);
+  sb.querySelector('.sb-head').onclick = ()=>{
+    body.hidden = !body.hidden; DB.set('sbopen', !body.hidden);
+    sb.querySelector('.chev').textContent = body.hidden ? '보기' : '닫기';
+  };
+  sb.appendChild(body);
+  view.appendChild(sb);
+
+  /* 메시지 */
+  const list = document.createElement('div'); view.appendChild(list);
+  const drawMsgs = ()=>{
+    list.innerHTML = '';
+    chat.msgs.forEach(m=> list.appendChild(msgEl(m, c)));
+  };
+  drawMsgs();
+
+  /* 입력 */
+  const comp = document.createElement('div'); comp.className='composer';
+  comp.innerHTML = `<div class="box"><textarea rows="1" placeholder="무엇을 합니까"></textarea><button class="send">↑</button></div>
+    <div class="tools"><button id="t-undo">되감기</button><button id="t-regen">다시 쓰기</button><button id="t-sync">상태 새로 읽기</button><button id="t-del" style="margin-left:auto;color:var(--rust)">대화 지우기</button></div>`;
+  view.appendChild(comp);
+  const ta = comp.querySelector('textarea'), sendBtn = comp.querySelector('.send');
+  ta.addEventListener('input', ()=>{ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,130)+'px'; });
+
+  const scroll = ()=> view.scrollTo({top: view.scrollHeight, behavior:'smooth'});
+
+  async function turn(){
+    if(S.busy) return;
+    const text = ta.value.trim(); if(!text) return;
+    ta.value=''; ta.style.height='auto';
+    chat.msgs.push({role:'user', content:text});
+    save('chats'); drawMsgs(); scroll();
+    await respond(false);
+  }
+
+  async function respond(regen){
+    S.busy = true; sendBtn.disabled = true;
+    const holder = document.createElement('div'); holder.className='msg ai';
+    holder.innerHTML = `<div class="who">${esc(c?.이름||'이야기')}</div><div class="body thinking">쓰는 중…</div>`;
+    list.appendChild(holder); scroll();
+    const bodyEl = holder.querySelector('.body');
+    try{
+      const keep = Number(S.settings.keep) || 14;
+      const hist = chat.msgs.slice(-keep).map(m=>({role:m.role, content:m.content}));
+      const out = await llm([{role:'system', content: buildSystem(chat)}, ...hist],
+        {temperature:0.95, onDelta: t=>{ bodyEl.classList.remove('thinking'); bodyEl.innerHTML = fmt(t); scroll(); }});
+      chat.msgs.push({role:'assistant', content: out});
+      save('chats'); drawMsgs();
+      if(S.settings.autostate){
+        try{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); }
+        catch(e){ toast('상태를 갱신하지 못했습니다. 대화는 그대로 이어집니다.', true); }
+      }
+    }catch(e){
+      holder.remove(); toast(e.message, true);
+    }finally{ S.busy=false; sendBtn.disabled=false; scroll(); }
+  }
+
+  sendBtn.onclick = turn;
+  ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey && !/Mobi/.test(navigator.userAgent)){ e.preventDefault(); turn(); } });
+
+  comp.querySelector('#t-undo').onclick = ()=>{
+    while(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='assistant') chat.msgs.pop();
+    if(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='user') ta.value = chat.msgs.pop().content;
+    save('chats'); drawMsgs(); toast('한 걸음 되돌렸습니다.');
+  };
+  comp.querySelector('#t-regen').onclick = ()=>{
+    if(S.busy) return;
+    while(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='assistant') chat.msgs.pop();
+    save('chats'); drawMsgs(); respond(true);
+  };
+  comp.querySelector('#t-sync').onclick = async (e)=>{
+    await guard(e.target, '읽는 중…', async ()=>{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); toast('상태를 다시 읽었습니다.'); });
+  };
+  comp.querySelector('#t-del').onclick = ()=>{
+    if(confirm('이 대화를 지웁니다. 되돌릴 수 없습니다.')){ S.chats = S.chats.filter(x=>x.id!==chat.id); save('chats'); go('chats'); }
+  };
+  setTimeout(scroll, 60);
+}
+
+const fmt = t => esc(t).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+function msgEl(m, c){
+  const d = document.createElement('div');
+  d.className = 'msg ' + (m.role==='user'?'me':'ai');
+  d.innerHTML = m.role==='user'
+    ? `<div class="body">${esc(m.content)}</div>`
+    : `<div class="who">${esc(c?.이름||'이야기')}</div><div class="body">${fmt(m.content)}</div>`;
+  return d;
+}
+
+/* ---------- 설정 ---------- */
+function vSettings(){
+  hsub.textContent = '설정';
+  const st = S.settings;
+  view.innerHTML = `
+    <label class="f"><span>API 키</span><input id="s-key" type="password" placeholder="sk-…" value="${esc(st.key)}">
+      <div class="hint">이 기기에만 저장됩니다. 서버로 보내지 않습니다.</div></label>
+    <label class="f"><span>주소</span><input id="s-base" value="${esc(st.base)}">
+      <div class="hint">브라우저가 직접 호출을 막으면 프록시 주소로 바꾸세요.</div></label>
+    <label class="f"><span>모델</span><input id="s-model" value="${esc(st.model)}"></label>
+    <label class="f"><span>원문으로 넘길 최근 턴</span><input id="s-keep" type="number" min="4" max="40" value="${st.keep}">
+      <div class="hint">이보다 오래된 일은 상태 기록이 대신 기억합니다.</div></label>
+    <label class="f"><span>상태 자동 기록</span>
+      <select id="s-auto"><option value="1" ${st.autostate?'selected':''}>켜기</option><option value="0" ${!st.autostate?'selected':''}>끄기</option></select>
+      <div class="hint">매 턴 한 번 더 호출합니다. 끄면 값은 싸지고 기억은 흐려집니다.</div></label>
+    <div class="eyebrow">기록</div>
+    <div class="row"><button class="btn ghost" id="s-out">내보내기</button><button class="btn ghost" id="s-in">가져오기</button></div>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.7">
+      모든 기록은 이 브라우저 안에만 있습니다. 브라우저 저장소를 비우면 함께 사라지니 가끔 내보내 두세요.</p>`;
+  const bind = (id,k,f=(v=>v)) => { const el=document.getElementById(id);
+    el.addEventListener('input', ()=>{ st[k]=f(el.value); save('settings'); });
+    el.addEventListener('change', ()=>{ st[k]=f(el.value); save('settings'); }); };
+  bind('s-key','key'); bind('s-base','base'); bind('s-model','model');
+  bind('s-keep','keep', v=>Number(v)); bind('s-auto','autostate', v=>v==='1');
+
+  document.getElementById('s-out').onclick = ()=>{
+    const blob = new Blob([JSON.stringify({worlds:S.worlds, chars:S.chars, chats:S.chats}, null, 1)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `모루-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  };
+  document.getElementById('s-in').onclick = ()=>{
+    const i = document.createElement('input'); i.type='file'; i.accept='.json';
+    i.onchange = async ()=>{
+      try{
+        const j = JSON.parse(await i.files[0].text());
+        S.worlds = j.worlds||[]; S.chars = j.chars||[]; S.chats = j.chats||[];
+        save('worlds'); save('chars'); save('chats'); toast('가져왔습니다.'); render();
+      }catch(e){ toast('파일을 읽지 못했습니다.', true); }
+    };
+    i.click();
+  };
+}
+
+/* ---------- 공통 ---------- */
+async function guard(btn, label, fn){
+  if(S.busy) return;
+  S.busy = true; const old = btn.textContent; btn.textContent = label; btn.disabled = true;
+  try{ await fn(); }
+  catch(e){ toast(e.message, true); }
+  finally{ S.busy=false; btn.disabled=false; if(btn.isConnected) btn.textContent = old; }
+}
+
+document.querySelectorAll('nav button').forEach(b=> b.onclick = ()=> go(b.dataset.tab));
+render();
+</script>
+</body>
+</html>
