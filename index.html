@@ -3,531 +3,806 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>85일 수유거부·마녀시간 가이드</title>
+<meta name="theme-color" content="#16151A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>모루</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css" rel="stylesheet">
 <style>
-  :root{
-    --bg: #14171c;
-    --panel: #1c2027;
-    --panel-2: #232830;
-    --line: #2c313b;
-    --amber: #e8a94d;
-    --amber-dim: #7a5a2c;
-    --blue: #7fa0bf;
-    --text: #edeae3;
-    --text-dim: #9aa1ad;
-    --text-faint: #6b7280;
-    --radius: 14px;
-  }
-  @media (prefers-reduced-motion: reduce){
-    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
-  }
-  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; padding:0; background:var(--bg); color:var(--text);}
-  body{
-    font-family:-apple-system, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", Malgun Gothic, sans-serif;
-    line-height:1.72;
-    font-size:15.5px;
-    word-break:keep-all;
-    padding-bottom:96px;
-  }
-  a{color:inherit;}
+:root{
+  --ink:#16151A;
+  --ink-2:#1E1C24;
+  --ink-3:#2A2733;
+  --line:#3A3644;
+  --paper:#EDE6D6;
+  --paper-line:#C9BFA6;
+  --text:#E4E0D8;
+  --muted:#8B8578;
+  --verdigris:#6BA292;
+  --verdigris-dim:#3E6459;
+  --brass:#C9A961;
+  --rust:#B8674A;
+  --serif:'Gowun Batang', serif;
+  --sans:'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --mono:ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  background:var(--ink);color:var(--text);font-family:var(--sans);
+  font-size:15px;line-height:1.6;
+  display:flex;flex-direction:column;
+  overscroll-behavior-y:none;
+}
+button,input,textarea,select{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+textarea{resize:vertical}
 
-  /* ---------- top bar ---------- */
-  .topbar{
-    position:sticky; top:0; z-index:30;
-    background:rgba(20,23,28,0.92);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-    padding:10px 16px 0 16px;
-  }
-  .topbar-row{
-    display:flex; align-items:center; justify-content:space-between;
-    padding-bottom:9px;
-  }
-  .brand{font-size:12.5px; letter-spacing:0.5px; color:var(--text-dim); font-weight:600;}
-  .brand b{color:var(--amber); font-weight:700;}
-  .progress-wrap{height:2.5px; background:var(--line); position:relative;}
-  .progress-bar{height:100%; width:0%; background:var(--amber); transition:width .1s linear;}
+/* ---- shell ---- */
+header{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(var(--ink) 70%, transparent);
+  padding:calc(env(safe-area-inset-top) + 14px) 18px 12px;
+  display:flex;align-items:baseline;gap:10px;
+}
+header .mark{font-family:var(--serif);font-size:21px;letter-spacing:.14em;color:var(--paper)}
+header .sub{font-size:11px;color:var(--muted);letter-spacing:.08em}
+header .spacer{flex:1}
+header .act{font-size:13px;color:var(--verdigris);padding:4px 2px}
+main{flex:1;overflow-y:auto;padding:0 18px 28px;-webkit-overflow-scrolling:touch}
+nav{
+  display:flex;border-top:1px solid var(--line);background:var(--ink-2);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+nav button{flex:1;padding:11px 0 9px;font-size:11px;color:var(--muted);letter-spacing:.06em;
+  border-top:2px solid transparent;margin-top:-1px}
+nav button .g{display:block;font-family:var(--serif);font-size:17px;margin-bottom:2px;color:var(--muted)}
+nav button[aria-current="true"]{color:var(--paper)}
+nav button[aria-current="true"] .g{color:var(--verdigris)}
+nav button[aria-current="true"]{border-top-color:var(--verdigris)}
 
-  .chips{
-    display:flex; gap:7px; overflow-x:auto; padding:10px 16px 12px 16px;
-    scrollbar-width:none;
-  }
-  .chips::-webkit-scrollbar{display:none;}
-  .chip{
-    flex:0 0 auto;
-    font-size:12.5px; font-weight:600;
-    color:var(--text-dim);
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:999px;
-    padding:6px 13px;
-    white-space:nowrap;
-  }
-  .chip.active{ color:#1a140a; background:var(--amber); border-color:var(--amber); }
+/* ---- shared ---- */
+.eyebrow{font-size:11px;letter-spacing:.16em;color:var(--muted);margin:22px 0 10px}
+.empty{border:1px dashed var(--line);border-radius:3px;padding:26px 18px;text-align:center;color:var(--muted);font-size:13px}
+.empty b{display:block;color:var(--text);font-family:var(--serif);font-size:15px;margin-bottom:6px;font-weight:400}
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:14px 15px;margin-bottom:9px;display:block;width:100%;text-align:left}
+.card h3{margin:0 0 3px;font-family:var(--serif);font-weight:400;font-size:17px;color:var(--paper)}
+.card p{margin:0;font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .tag{font-size:10.5px;color:var(--verdigris);letter-spacing:.06em}
+.btn{display:block;width:100%;padding:13px;border-radius:3px;background:var(--verdigris-dim);color:#EAF5F1;
+  font-size:14px;letter-spacing:.04em;border:1px solid var(--verdigris)}
+.btn.ghost{background:transparent;color:var(--muted);border-color:var(--line)}
+.btn.danger{background:transparent;color:var(--rust);border-color:#5A3830}
+.btn:disabled{opacity:.4}
+.row{display:flex;gap:8px}
+.row .btn{flex:1}
+label.f{display:block;margin:14px 0 0}
+label.f span{display:block;font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:5px}
+label.f input,label.f textarea,label.f select{
+  width:100%;background:var(--ink-2);border:1px solid var(--line);border-radius:3px;
+  padding:10px 11px;color:var(--text);outline:none}
+label.f input:focus,label.f textarea:focus,label.f select:focus{border-color:var(--verdigris)}
+label.f .hint{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:78px;z-index:60;
+  background:var(--ink-3);border:1px solid var(--line);color:var(--text);
+  padding:10px 16px;border-radius:3px;font-size:13px;max-width:88vw;text-align:center}
+.err{border-color:#5A3830;color:#E8B4A2}
 
-  /* ---------- hero ---------- */
-  .hero{ padding:26px 18px 6px 18px; }
-  .eyebrow{
-    font-size:11.5px; letter-spacing:2px; color:var(--amber);
-    font-weight:700; margin-bottom:10px;
-  }
-  .hero h1{
-    font-size:22px; line-height:1.5; margin:0 0 12px 0; color:#fff;
-    letter-spacing:-0.2px;
-  }
-  .hero p{ color:var(--text-dim); font-size:14px; margin:0 0 20px 0;}
+/* ---- world sheet (the manuscript) ---- */
+.sheet{
+  background:var(--paper);color:#2A2620;border-radius:2px;
+  padding:22px 20px 24px;margin:4px 0 14px;
+  box-shadow:0 1px 0 #A99A7C, 0 14px 30px rgba(0,0,0,.45);
+  font-family:var(--serif);
+}
+.sheet .title{font-size:24px;line-height:1.3;margin:0 0 2px;font-weight:700}
+.sheet .oneline{font-size:13.5px;color:#5C5545;margin:0 0 18px;font-family:var(--sans)}
+.sheet .fld{border-top:1px solid var(--paper-line);padding-top:11px;margin-top:14px}
+.sheet .fld > span{display:block;font-family:var(--sans);font-size:10.5px;letter-spacing:.16em;color:#8A7F63;margin-bottom:6px}
+.sheet textarea,.sheet input{
+  width:100%;background:transparent;border:none;outline:none;color:#2A2620;
+  font-family:var(--serif);font-size:15px;line-height:1.75;padding:0;
+}
+.sheet textarea::placeholder,.sheet input::placeholder{color:#B0A588}
+.sheet .note{font-family:var(--sans);font-size:11px;color:#8A7F63;margin-top:4px}
 
-  .stat-row{ display:flex; gap:10px; margin-bottom:8px; }
-  .stat{
-    flex:1; background:var(--panel); border:1px solid var(--line);
-    border-radius:var(--radius); padding:14px 12px;
-  }
-  .stat .num{ font-size:20px; font-weight:800; color:var(--amber); }
-  .stat .cap{ font-size:11.8px; color:var(--text-dim); margin-top:4px; line-height:1.5;}
+/* ---- harness ---- */
+.harness{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:16px 15px;margin-bottom:14px}
+.harness .total{font-family:var(--serif);font-size:15px;color:var(--paper);margin:0 0 14px;line-height:1.65}
+.axis{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.axis:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.axis .head{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.axis .nm{font-size:13.5px;color:var(--paper);flex:1}
+.pips{display:flex;gap:3px}
+.pip{width:13px;height:3px;background:var(--ink-3);border-radius:1px}
+.pip.on{background:var(--brass)}
+.pip.on.low{background:var(--rust)}
+.axis .dx{font-size:12.5px;color:var(--muted);margin:0 0 8px}
+.axis .fix{font-family:var(--serif);font-size:13.5px;background:var(--ink);border-left:2px solid var(--verdigris);
+  padding:9px 11px;color:var(--text);border-radius:0 3px 3px 0}
+.axis .apply{margin-top:7px;font-size:11.5px;color:var(--verdigris);letter-spacing:.06em;
+  border:1px solid var(--verdigris-dim);border-radius:3px;padding:6px 11px}
+.axis .apply[data-done="1"]{color:var(--muted);border-color:var(--line)}
 
-  /* ---------- section list ---------- */
-  .sections{ padding:22px 14px 0 14px; }
-  .card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:var(--radius);
-    margin-bottom:10px;
-    overflow:hidden;
-  }
-  .card-head{
-    display:flex; align-items:center; gap:12px;
-    padding:15px 15px;
-    cursor:pointer;
-    user-select:none;
-  }
-  .card-num{
-    flex:0 0 auto;
-    width:28px; height:28px; border-radius:8px;
-    background:var(--panel-2);
-    color:var(--amber);
-    display:flex; align-items:center; justify-content:center;
-    font-size:12.5px; font-weight:800;
-  }
-  .card-title{ flex:1; font-size:15px; font-weight:700; color:#fff; line-height:1.4;}
-  .chev{
-    flex:0 0 auto; color:var(--text-faint);
-    transition:transform .25s ease;
-    font-size:13px;
-  }
-  .card.open .chev{ transform:rotate(180deg); }
-  .card-body{
-    max-height:0;
-    overflow:hidden;
-    transition:max-height .32s ease;
-  }
-  .card-body-inner{
-    padding:0 16px 18px 16px;
-    border-top:1px solid var(--line);
-    padding-top:14px;
-  }
-  .card-body-inner p{ margin:0 0 12px 0; color:#d7d4cc; font-size:14.3px; text-align:justify;}
-  .sub h4{
-    font-size:13.5px; color:var(--amber); margin:18px 0 8px 0;
-    font-weight:700;
-  }
-  .sub:first-child h4{ margin-top:2px; }
-
-  .callout{
-    background:rgba(232,169,77,0.08);
-    border-left:3px solid var(--amber);
-    padding:10px 12px; border-radius:0 8px 8px 0;
-    font-size:13.3px; color:#e8dcc7; margin:12px 0;
-  }
-  .callout b{ color:var(--amber); }
-
-  /* responsive "table" -> stacked cards */
-  .dtable{ margin:12px 0 6px 0; }
-  .dtable .cap{ font-size:12px; color:var(--text-faint); margin-bottom:8px; font-weight:600;}
-  .drow{
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:10px;
-    padding:11px 13px;
-    margin-bottom:8px;
-  }
-  .drow .k{
-    font-size:12px; color:var(--blue); font-weight:700; margin-bottom:3px;
-  }
-  .drow .v{ font-size:13.6px; color:#d7d4cc; margin-bottom:8px; }
-  .drow .v:last-child{ margin-bottom:0; }
-
-  ol.golden{ padding-left:0; list-style:none; counter-reset:g; margin:12px 0 6px 0;}
-  ol.golden li{
-    counter-increment:g;
-    position:relative;
-    padding:12px 14px 12px 42px;
-    background:var(--panel-2);
-    border-radius:10px;
-    margin-bottom:9px;
-    font-size:13.6px; color:#d7d4cc;
-  }
-  ol.golden li::before{
-    content:counter(g);
-    position:absolute; left:12px; top:12px;
-    width:22px; height:22px; border-radius:6px;
-    background:var(--amber); color:#1a140a;
-    font-weight:800; font-size:12px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  ol.golden b{ color:#fff; display:block; margin-bottom:2px;}
-
-  ul.s5{ padding-left:0; list-style:none; margin:12px 0 6px 0; }
-  ul.s5 li{
-    background:var(--panel-2); border-radius:10px;
-    padding:11px 13px; margin-bottom:8px; font-size:13.6px; color:#d7d4cc;
-  }
-  ul.s5 b.tag{ display:block; color:var(--amber); font-weight:800; margin-bottom:4px; font-size:13px;}
-
-  ul.checklist{ padding-left:0; list-style:none; margin:10px 0 6px 0; }
-  ul.checklist li{
-    padding-left:22px; position:relative; margin-bottom:8px; font-size:13.6px; color:#d7d4cc;
-  }
-  ul.checklist li::before{ content:"✓"; position:absolute; left:0; color:var(--amber); font-weight:800;}
-
-  .conclusion-box{
-    background:var(--panel-2); border:1px solid var(--line);
-    border-radius:10px; padding:14px 15px; margin-top:4px;
-  }
-
-  .disclaimer{
-    margin:26px 16px 0 16px; padding:14px 15px;
-    border-top:1px solid var(--line);
-    font-size:11.5px; color:var(--text-faint); line-height:1.6;
-  }
-
-  /* ---------- floating quick-help button + sheet ---------- */
-  .fab{
-    position:fixed; right:16px; bottom:18px; z-index:40;
-    background:var(--amber); color:#1a140a;
-    border:none; border-radius:999px;
-    padding:13px 18px;
-    font-size:14px; font-weight:800;
-    box-shadow:0 6px 20px rgba(232,169,77,0.35);
-    display:flex; align-items:center; gap:7px;
-  }
-  .fab .dot{
-    width:7px; height:7px; border-radius:50%;
-    background:#1a140a; opacity:0.7;
-  }
-
-  .sheet-backdrop{
-    position:fixed; inset:0; background:rgba(0,0,0,0.55);
-    opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:50;
-  }
-  .sheet-backdrop.show{ opacity:1; pointer-events:auto; }
-  .sheet{
-    position:fixed; left:0; right:0; bottom:0; z-index:51;
-    background:var(--panel);
-    border-top:1px solid var(--line);
-    border-radius:20px 20px 0 0;
-    padding:8px 18px 22px 18px;
-    transform:translateY(100%);
-    transition:transform .3s cubic-bezier(.32,.72,0,1);
-    max-height:78vh; overflow-y:auto;
-  }
-  .sheet.show{ transform:translateY(0); }
-  .sheet-handle{
-    width:36px; height:4px; border-radius:2px; background:var(--line);
-    margin:8px auto 14px auto;
-  }
-  .sheet h3{ font-size:16.5px; color:#fff; margin:0 0 4px 0; }
-  .sheet .sub-cap{ font-size:12.5px; color:var(--text-dim); margin-bottom:16px; }
-  .quick-step{
-    display:flex; gap:12px; margin-bottom:16px;
-  }
-  .quick-step .qnum{
-    flex:0 0 auto; width:26px; height:26px; border-radius:50%;
-    background:var(--amber-dim); color:var(--amber);
-    display:flex; align-items:center; justify-content:center;
-    font-weight:800; font-size:12px;
-  }
-  .quick-step .qtext b{ display:block; color:#fff; font-size:14px; margin-bottom:2px; }
-  .quick-step .qtext span{ font-size:13px; color:var(--text-dim); }
-  .sheet-close{
-    width:100%; padding:12px; margin-top:6px;
-    background:var(--panel-2); border:1px solid var(--line);
-    color:var(--text-dim); border-radius:10px; font-size:13.5px; font-weight:600;
-  }
+/* ---- chat ---- */
+.chatwrap{display:flex;flex-direction:column;height:100%}
+.statebar{
+  font-family:var(--mono);font-size:11px;line-height:1.55;
+  background:var(--ink-2);border:1px solid var(--line);border-radius:3px;
+  margin:2px 0 14px;overflow:hidden;
+}
+.statebar .sb-head{display:flex;align-items:center;gap:8px;padding:9px 12px;color:var(--verdigris);letter-spacing:.08em}
+.statebar .sb-head .dot{width:5px;height:5px;border-radius:50%;background:var(--verdigris)}
+.statebar .sb-head .chev{margin-left:auto;color:var(--muted)}
+.statebar .sb-body{padding:0 12px 12px;color:var(--muted);white-space:pre-wrap;word-break:break-word}
+.statebar .sb-body b{color:var(--text);font-weight:400}
+.statebar textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:3px;
+  font-family:var(--mono);font-size:11px;padding:9px;min-height:150px;outline:none}
+.msg{margin-bottom:16px;animation:rise .28s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.msg.me{padding-left:26px}
+.msg.me .body{background:var(--ink-3);border-radius:3px;padding:10px 13px;font-size:14.5px}
+.msg.ai .who{font-family:var(--serif);font-size:12px;color:var(--brass);letter-spacing:.06em;margin-bottom:5px}
+.msg.ai .body{font-size:15px;line-height:1.85;white-space:pre-wrap}
+.msg.me .body{white-space:pre-wrap}
+.msg.ai .body em{color:var(--muted);font-style:italic}
+.composer{position:sticky;bottom:0;background:var(--ink);padding:8px 0 calc(env(safe-area-inset-bottom) + 6px)}
+.composer .box{display:flex;gap:8px;align-items:flex-end;
+  background:var(--ink-2);border:1px solid var(--line);border-radius:3px;padding:7px 8px 7px 11px}
+.composer textarea{flex:1;background:none;border:none;outline:none;max-height:130px;min-height:24px;line-height:1.5;padding:3px 0}
+.composer .send{width:34px;height:34px;border-radius:3px;background:var(--verdigris-dim);
+  border:1px solid var(--verdigris);color:#EAF5F1;font-size:15px;flex:none}
+.composer .tools{display:flex;gap:14px;padding:8px 3px 0;font-size:11.5px;color:var(--muted);letter-spacing:.05em}
+.thinking{color:var(--muted);font-size:13px;font-style:italic}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-row">
-    <div class="brand"><b>85일 가이드</b> · 수유거부 &amp; 마녀시간</div>
-  </div>
-  <div class="chips" id="chips"></div>
-</div>
-<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+<header>
+  <div class="mark">모루</div>
+  <div class="sub" id="hsub"></div>
+  <div class="spacer"></div>
+  <button class="act" id="hact" hidden></button>
+</header>
 
-<div class="hero">
-  <div class="eyebrow">INFANT CARE · 모바일 요약판</div>
-  <h1>수유량이 갑자기 줄고, 저녁마다 아기가 자지러지게 운다면</h1>
-  <p>생후 85일 전후는 반사적 수유에서 자발적 통제로 넘어가는 발달적 과도기입니다. 대부분 병이 아니라 &lsquo;성장통&rsquo;이며, 100~120일 무렵 자연스럽게 잦아듭니다.</p>
-  <div class="stat-row">
-    <div class="stat"><div class="num">600~700ml</div><div class="cap">기저귀 5~6개 이상 나온다면 충분한 양</div></div>
-    <div class="stat"><div class="num">3~4개월</div><div class="cap">영아산통·마녀시간이 자연 소실되는 시기</div></div>
-  </div>
-</div>
+<main id="view"></main>
 
-<div class="sections" id="sections"></div>
-
-<div class="disclaimer">
-  본 문서는 정보 제공 및 교육적 목적으로만 작성되었습니다. 의료적 조언, 진단, 또는 치료를 대신할 수 없으며, 영유아의 건강이나 증상과 관련된 의학적 결정을 내릴 때는 반드시 소아청소년과 전문의나 자격을 갖춘 의료 전문가와 상담하십시오.
-</div>
-
-<button class="fab" id="fabBtn"><span class="dot"></span>지금 급해요</button>
-
-<div class="sheet-backdrop" id="sheetBackdrop"></div>
-<div class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <h3>지금 당장 할 수 있는 것</h3>
-  <div class="sub-cap">우는 아기를 안고 있다면, 순서대로 시도해보세요</div>
-
-  <div class="quick-step">
-    <div class="qnum">1</div>
-    <div class="qtext"><b>불 끄고 조용한 방으로</b><span>어둡고 조용한 방으로 이동, 백색소음(60dB) 재생 — 자극 원천 차단</span></div>
-  </div>
-  <div class="quick-step">
-    <div class="qnum">2</div>
-    <div class="qtext"><b>5S 진정법</b><span>속싸개로 팔 감싸기 → 옆으로 안기 → &ldquo;쉬~&rdquo; 소리 → 리드미컬하게 흔들기 → 쪽쪽이 물리기</span></div>
-  </div>
-  <div class="quick-step">
-    <div class="qnum">3</div>
-    <div class="qtext"><b>수유는 절대 강압하지 않기</b><span>고개 돌리거나 짜증내면 즉시 젖병을 빼고 5~20분 쉬었다가 다시 시도</span></div>
-  </div>
-  <div class="quick-step">
-    <div class="qnum">4</div>
-    <div class="qtext"><b>피부 접촉 20~30분</b><span>맨가슴에 안고 심장 소리를 들려주면 옥시토신 분비로 진정 효과</span></div>
-  </div>
-  <div class="quick-step">
-    <div class="qnum">5</div>
-    <div class="qtext"><b>탈수만 아니면 괜찮다는 것 기억하기</b><span>소변 기저귀 5~6개 이상, 체중 유지 중이면 병원 응급 상황 아님</span></div>
-  </div>
-
-  <button class="sheet-close" id="sheetClose">닫기</button>
-</div>
+<nav>
+  <button data-tab="worlds"><span class="g">世</span>세계</button>
+  <button data-tab="chars"><span class="g">人</span>인물</button>
+  <button data-tab="chats"><span class="g">話</span>대화</button>
+  <button data-tab="settings"><span class="g">具</span>설정</button>
+</nav>
 
 <script>
-const sections = [
-  {
-    title: "서론: 발달적 과도기와 의학적 &lsquo;정상&rsquo;의 괴리",
-    body: `
-      <p>생후 85일(약 12주 차)은 영아의 신체적, 인지적, 신경학적 발달이 폭발적으로 교차하는 중대한 전환기다. 이 시기 양육자가 가장 빈번하게 겪는 위기는 800~900ml 수준이던 일일 수유량이 600~700ml대로 급감하는 현상과, 늦은 오후·저녁 시간대에 어떤 방법으로도 달래지지 않는 극심한 보챔, 즉 &lsquo;마녀시간(Witching Hour)&rsquo;이다.</p>
-      <p>발열, 혈변, 탈수, 심각한 기력 저하 등 뚜렷한 병리적 징후가 없다면 의료진은 이를 &lsquo;영아산통(Infant Colic)&rsquo;으로 진단하며 특별한 개입이 불필요하다고 본다. 의학적으로는 질병이 아니지만, 매일 밤 씨름해야 하는 양육자에게는 결코 가볍지 않은 일상의 붕괴다.</p>
-      <p>이 보고서는 그 근본 원인을 발달심리학·신경생리학 관점에서 분석하고, 전 세계 수유 전문가와 부모들의 경험을 종합해 실전 대응 전략을 제시한다.</p>
-    `
-  },
-  {
-    title: "수유량 급감과 수유 기피의 메커니즘",
-    body: `
-      <div class="sub"><h4>2.1 반사적 섭취 → 자발적 통제</h4>
-      <p>생후 2개월까지는 &lsquo;빨기 반사&rsquo;로 주어지는 대로 반사적으로 삼킨다. 800~900ml는 실제 필요량이라기보다 반사적으로 삼켜진 양일 가능성이 크다. 2~4개월 사이 원시 반사가 소실되며 아기는 스스로 섭취를 결정하는 &lsquo;자발적 빨기&rsquo;를 시작한다. 600~700ml는 아기가 자신의 대사량에 맞게 섭취를 통제하기 시작했다는 긍정적 신호다.</p></div>
-      <div class="sub"><h4>2.2 인지적 도약과 시청각 과부하</h4>
-      <p>생후 11~12주는 &lsquo;원더윅스 도약 3단계&rsquo;에 해당한다. 조명, 소리, 옷 무늬까지 흥미로운 정보로 지각하게 되어 수유 중에도 소음·빛에 반응해 고개를 돌리는 &lsquo;산만형 수유 거부&rsquo;가 흔하다. 식욕 상실이 아니라 호기심이 식욕을 압도한 상태다.</p></div>
-      <div class="sub"><h4>2.3 유속에 대한 감각적 불일치</h4>
-      <p>흡철력이 강해지는 시기에 느린 유속 젖꼭지를 계속 쓰면 답답해하고, 너무 빠르면 사레·역류 공포로 거부한다. 모유도 생후 3개월 무렵 공급이 안정화되며 사출이 지연되는데, 즉각 보상에 익숙했던 아기는 이 지연을 견디지 못해 젖가슴을 밀어내기도 한다.</p></div>
-      <div class="sub"><h4>2.4 수유 압박이 낳은 수유 기피증</h4>
-      <p>거부 신호를 무시하고 강압적으로 먹이면 며칠 만에 &lsquo;수유 기피증(Feeding Aversion)&rsquo;이 형성될 수 있다. 수유 시간이 &lsquo;통제권을 박탈당하는 고통스러운 시간&rsquo;으로 조건화되어, 배가 고파도 수유 자세만 취해도 우는 방어 기제가 생긴다.</p></div>
-      <div class="dtable">
-        <div class="cap">발달 단계별 수유 거부 양상</div>
-        <div class="drow"><div class="k">반사적 단계 (0~2개월)</div><div class="v">뇌간의 원시 반사 지배 → 배앓이·가스 시에만 거부</div></div>
-        <div class="drow"><div class="k">자발적 단계 (3개월~)</div><div class="v">대뇌 피질 발달 → 고개 돌림, 입술 닫기, 짜증</div></div>
-        <div class="drow"><div class="k">인지적 도약기 (3개월~)</div><div class="v">시청각 발달 → 젖 물었다 뗐다 반복하며 두리번거림</div></div>
-        <div class="drow"><div class="k">수유 기피증 발생기</div><div class="v">강압 수유 누적 → 배고파도 각성 시 끝까지 거부</div></div>
-      </div>
-    `
-  },
-  {
-    title: "마녀시간과 영아산통의 역학 구조",
-    body: `
-      <p>&lsquo;마녀시간&rsquo;은 늦은 오후~저녁(오후 5~9시) 사이 원인 모를 극심한 보챔이 어떤 방법으로도 진정되지 않는 현상이다.</p>
-      <div class="sub"><h4>3.1 수면 부채와 코르티솔 과각성</h4>
-      <p>핵심 촉발 기제는 &lsquo;피로 누적&rsquo;이다. 생후 3개월 적정 각성 시간은 1.5~2시간 남짓인데, 낮잠을 거부하거나 30~40분 토끼잠을 자면 신경계 부하가 해소되지 않는다. 뇌는 피로를 위기로 인지해 코르티솔·아드레날린을 분비하고, 아기는 졸린데도 스스로 전원을 끄지 못한 채 울부짖는 과각성 상태에 빠진다.</p></div>
-      <div class="sub"><h4>3.2 수유 스트레스와 소화기계 악순환</h4>
-      <p>낮 동안 유속 불만이나 강압 수유로 스트레스를 받으면 긴장이 축적되고, 울고 뻗치는 과정에서 공기를 많이 삼켜(Aerophagia) 가스로 인한 복부 통증이 생긴다. 모유 수유아는 오후 5시 이후 프로락틴 저하로 사출이 느려져 좌절감이 더해진다.</p></div>
-      <div class="sub"><h4>3.3 백일의 기적</h4>
-      <p>영아산통은 생후 5~6주에 정점을 찍고, 생후 3~4개월(12~16주) 무렵 위장관·뇌신경계가 안정되며 자연 소실된다. 85일 차 마녀시간은 이 과도기의 마지막 요동이자 &lsquo;백일의 기적&rsquo;으로 가는 통과의례다.</p></div>
-    `
-  },
-  {
-    title: "글로벌 부모들의 행동 교정 실전 사례",
-    body: `
-      <div class="sub"><h4>4.1 감각 차단 &amp; 환경 재구성</h4>
-      <p>가장 어둡고 조용한 방에서 블라인드를 내리고 수유. 백색소음(약 60dB)으로 생활 소음을 마스킹하고, 얇은 수유 가리개로 시각 자극을 차단하면 효과적이라는 증언이 많다.</p></div>
-      <div class="sub"><h4>4.2 수유 자세 다변화 &amp; 동적 수유</h4>
-      <p>요람 자세 자체가 트라우마 방아쇠가 됐다면, 세워 안기·짐볼 바운스·아빠 품·바운서 반쯤 앉히기 등 &lsquo;동적 수유&rsquo;로 전혀 다른 물리적 환경을 제공하면 다시 젖병을 물기 시작하기도 한다. 측면 수유(Side-lying)도 저항을 낮춘다.</p></div>
-      <div class="sub"><h4>4.3 수면 연관 수유(Dream Feeding)</h4>
-      <p>반수면 상태에서는 원시 빨기 반사가 우세해져 거부 없이 먹는다. 응급처치로 유효하지만, 하루 총 400ml 미만 등 탈수 위험이 임박한 경우가 아니라면 장기적으로는 점진적으로 줄이는 것이 낫다.</p></div>
-      <div class="sub"><h4>4.4 로위나 베넷의 무압박 프로토콜</h4>
-      <p>가장 지지받는 전략. 젖병을 둘러싼 권력 투쟁을 종식시키고 통제권을 아기에게 돌려준다.</p>
-      <ol class="golden">
-        <li><b>압박의 완전한 배제</b>억지로 입 벌리기·턱 잡고 밀어넣기 중단</li>
-        <li><b>아기의 주도성 존중</b>젖꼭지로 입술을 터치해 자발적으로 물 때만 개시</li>
-        <li><b>거절 신호 즉각 수용</b>고개 돌리면 1초도 지체 없이 젖병을 빼고 5~20분 휴식</li>
-        <li><b>수유 세션의 단호한 종료</b>재차 거부하면 다음 텀(약 3시간 후)까지 억지로 먹이지 않음</li>
-      </ol>
-      <p>첫 2~3일은 수유량이 400ml 이하로 떨어져 공포스러울 수 있지만, 버텨내면 &lsquo;젖병이 위협이 아니다&rsquo;라는 확신을 얻고 일주일 내 수유량이 회복된다.</p></div>
-      <div class="sub"><h4>4.5 비판적 시각: 심리적 기피 vs 기계적 미숙</h4>
-      <p>수유 전문가 레이첼 오브라이언(IBCLC)은 거부가 항상 심리적 트라우마는 아니라고 지적한다. 원시 반사 소실 후 &lsquo;자발적으로 빨고 삼키는 기술&rsquo;을 아직 못 익혔을 수도 있다는 것. 이 경우 무조건 기다리기보다 턱·혀 협응을 돕는 수유 치료(Feeding therapy) 병행이 필요하다.</p></div>
-    `
-  },
-  {
-    title: "마녀시간 실전 진정 기법",
-    body: `
-      <div class="sub"><h4>5.1 5S 진정법 (하비 카프)</h4>
-      <ul class="s5">
-        <li><b class="tag">Swaddling 단단히 싸주기</b>속싸개로 팔을 몸통에 밀착 — 모로 반사로 깨는 것 방지</li>
-        <li><b class="tag">Side/Stomach 옆·엎드려 안기</b>똑바로 눕히면 불안감 유발 — 옆으로 안거나 팔뚝에 배가 닿게</li>
-        <li><b class="tag">Shushing 강한 백색소음</b>귀 가까이 60dB 이상 &ldquo;쉬~&rdquo; — 태내 혈류 소리와 유사해 코르티솔 억제</li>
-        <li><b class="tag">Swinging 리드미컬한 흔들기</b>짐볼 바운스, 무릎 구부리며 반동 — 전정 기관 자극으로 안정</li>
-        <li><b class="tag">Sucking 빨기 욕구 충족</b>공갈젖꼭지나 깨끗한 손가락 — 엔돌핀 분비로 천연 진통 효과</li>
-      </ul></div>
-      <div class="sub"><h4>5.2 피부 접촉과 신경계 리셋</h4>
-      <p>수유 목적 없이 맨가슴에 안아주면 옥시토신이 분비되어 불안이 급격히 낮아진다. 최소 20~30분 심장 소리를 들려주는 것이 좋다. 저녁 수유 전 따뜻한 목욕도 체온 하강을 통해 &lsquo;수면 시간&rsquo; 신호를 뇌에 전달하며, 목욕 후 복부 마사지는 가스 배출에 도움된다.</p></div>
-      <div class="sub"><h4>5.3 수면 의식과 일과표 재조정</h4>
-      <p>생후 3개월은 각성 시간 2시간을 넘기지 않는 것이 중요하다. 하품·눈썹 붉어짐 등 졸음 신호가 보이면 즉시 어둡게 하고 수면 의식에 돌입한다. 토끼잠을 자면 안아 올리거나 쪽쪽이로 수면 주기 연장을 시도한다. 낮 동안 수면 부채를 없애면 저녁 마녀시간 강도가 크게 약해진다.</p></div>
-    `
-  },
-  {
-    title: "물리적 수유 도구 재설계",
-    body: `
-      <div class="sub"><h4>6.1 젖꼭지 유속 조절</h4>
-      <p>생후 3개월은 대다수가 단계를 올려야 하는 시기다. 수유 시작 5분 이내 가슴을 치거나 물어뜯으면 유속이 느리다는 신호다.</p>
-      <div class="dtable">
-        <div class="cap">젖병 젖꼭지 단계 가이드</div>
-        <div class="drow"><div class="k">1단계 (느린 유속) · 0~3개월</div><div class="v">사출 민감·조산아에 적합. 빠는 힘이 세지면 짜증 유발</div></div>
-        <div class="drow"><div class="k">2단계 (중간 유속) · 3~6개월</div><div class="v">흡철력이 강해지는 백일 무렵 변경 권장</div></div>
-        <div class="drow"><div class="k">3단계 (빠른 유속) · 6개월 이상</div><div class="v">이유식 병행 시기, 먹는 양 급증 시 사용</div></div>
-      </div>
-      <p>변경 시 첫날은 젖병 하나에만 새 단계를 적용해 반응을 살피고, 5분 이상 사레 없이 안정적이면 2~3일에 걸쳐 서서히 전체 교체하는 점진적 적응이 안전하다.</p></div>
-      <div class="sub"><h4>6.2 모유·분유 혼합 전략</h4>
-      <p>모유 사출 지연이 문제라면 수유 전 2~3분 유방 마사지나 살짝 유축으로 미리 젖을 돌게 한다. 젖병을 강하게 거부한다면 졸린 틈에 공갈젖꼭지에서 젖병으로 바꿔치기하거나, 유두 보호기를 부착해 젖병처럼 느끼게 하는 방법도 시도해볼 수 있다.</p></div>
-    `
-  },
-  {
-    title: "부모의 심리적 안정과 모니터링",
-    body: `
-      <div class="sub"><h4>7.1 주관적 공포 → 객관적 지표</h4>
-      <p>600ml는 의학적으로 충분한 양이다. 숫자 집착 대신 소변 기저귀 5~6개 이상(투명~옅은 노랑), 1~2주 간격 체중 유지/우상향 여부에 집중하자. 성장 곡선은 직선이 아니며 도약기 이후 완만한 정체기는 자연스럽다.</p></div>
-      <div class="sub"><h4>7.2 기록을 통한 패턴 분석</h4>
-      <p>2~3일간 수유·수면·배변을 기록하면 원인이 보인다.</p>
-      <ul class="checklist">
-        <li>수유 거부 시간대 (오전/저녁 마녀시간 전후)</li>
-        <li>수유 직전 각성 시간 (깬 지 몇 분)</li>
-        <li>수유 당시 환경 (장소, 조명 밝기)</li>
-      </ul>
-      <p>예: &ldquo;깨어난 지 1시간 40분 넘으면 거부&rdquo;, &ldquo;오후 6시 이후 거실에서만 심함&rdquo; 같은 패턴을 찾으면 선제적으로 재우거나 수유 장소를 바꾸는 핀포인트 처방이 가능하다.</p></div>
-    `
-  },
-  {
-    title: "결론",
-    body: `
-      <div class="conclusion-box">
-      <p>수유량 급감과 마녀시간은 병리적 문제나 잘못된 양육 때문이 아니다. 반사의 세계를 떠나 스스로 인지하고 통제하려는 인지적·신경학적 도약 과정의 자연스러운 성장통이다.</p>
-      <p>강압적 수유를 멈추고 통제권을 아기에게 돌려주는 &lsquo;무압박 원칙&rsquo;을 신뢰하자. 유속 조절, 자극 차단 환경, 각성 시간 관리로 피로 누적을 막는 것이 핵심이며, 스킨십과 5S 진정법이 마녀시간의 고통을 크게 덜어준다.</p>
-      <p>생후 100~120일 무렵 신경계가 성숙하고 생체 리듬이 안착하면 이 폭풍은 잦아든다. 객관적 지표와 아기의 미소에 의지하며 평정심으로 이 시기를 지나면 아기는 더 단단하게 성장할 것이다.</p>
-      </div>
-    `
+/* ============================================================
+   저장소
+============================================================ */
+const DB = {
+  get(k, d){ try{ return JSON.parse(localStorage.getItem('moru:'+k)) ?? d; }catch(e){ return d; } },
+  set(k, v){ localStorage.setItem('moru:'+k, JSON.stringify(v)); }
+};
+let S = {
+  settings: DB.get('settings', {key:'', base:'https://api.deepseek.com', model:'deepseek-chat', keep:14, autostate:true}),
+  worlds:   DB.get('worlds', []),
+  chars:    DB.get('chars', []),
+  chats:    DB.get('chats', []),
+  tab:'worlds', open:null, busy:false
+};
+const save = k => DB.set(k, S[k]);
+const uid  = () => Math.random().toString(36).slice(2,10);
+const esc  = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function toast(msg, isErr){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t = document.createElement('div');
+  t.className = 'toast' + (isErr?' err':'');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), isErr?5200:2400);
+}
+
+/* ============================================================
+   모델 호출
+============================================================ */
+async function llm(messages, opt={}){
+  const st = S.settings;
+  if(!st.key) throw new Error('설정 탭에서 API 키를 먼저 넣어주세요.');
+  const body = {
+    model: st.model, messages,
+    temperature: opt.temperature ?? 0.9,
+    stream: !!opt.onDelta
+  };
+  if(opt.json) body.response_format = {type:'json_object'};
+  let res;
+  try{
+    res = await fetch(st.base.replace(/\/$/,'') + '/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+st.key},
+      body: JSON.stringify(body)
+    });
+  }catch(e){
+    throw new Error('서버에 닿지 못했습니다. 브라우저가 직접 호출을 막는 경우(CORS)라 설정 탭의 주소를 프록시로 바꿔야 합니다.');
   }
+  if(!res.ok){
+    const t = await res.text().catch(()=> '');
+    throw new Error('모델이 요청을 거절했습니다 ('+res.status+'). '+t.slice(0,160));
+  }
+  if(!opt.onDelta){
+    const d = await res.json();
+    return d.choices?.[0]?.message?.content ?? '';
+  }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf='', full='';
+  while(true){
+    const {done, value} = await reader.read();
+    if(done) break;
+    buf += dec.decode(value, {stream:true});
+    const lines = buf.split('\n'); buf = lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data:')) continue;
+      const p = line.slice(5).trim();
+      if(!p || p === '[DONE]') continue;
+      try{
+        const j = JSON.parse(p);
+        const d = j.choices?.[0]?.delta?.content;
+        if(d){ full += d; opt.onDelta(full); }
+      }catch(e){}
+    }
+  }
+  return full;
+}
+
+function parseJSON(txt){
+  const s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+  if(s < 0 || e < 0) throw new Error('모델이 형식에 맞지 않는 답을 보냈습니다. 다시 시도해 주세요.');
+  return JSON.parse(txt.slice(s, e+1));
+}
+
+/* ============================================================
+   세계 — 데이터 모양
+============================================================ */
+const FIELDS = [
+  ['시대와장소','시대와 장소', 'line'],
+  ['톤','톤과 분위기', 'line'],
+  ['세계규칙','이 세계의 법칙', 'list'],
+  ['갈등축','갈등의 축', 'list'],
+  ['세력','세력  ―  이름 | 목표 | 부딪히는 것', 'list'],
+  ['지역','장소  ―  이름 | 이곳의 특징', 'list'],
+  ['감각디테일','감각의 결', 'list'],
+  ['용어','이 세계의 말  ―  말 | 뜻', 'list']
 ];
+const blankWorld = () => ({id:uid(), 제목:'', 기본설정:'', 한줄:'', 시대와장소:'', 톤:'',
+  세계규칙:[], 갈등축:[], 세력:[], 지역:[], 감각디테일:[], 용어:[], harness:null, 만든날:Date.now()});
 
-const sectionsEl = document.getElementById('sections');
-const chipsEl = document.getElementById('chips');
+const asLines = v => Array.isArray(v)
+  ? v.map(x => typeof x === 'string' ? x : Object.values(x).filter(Boolean).join(' | ')).join('\n')
+  : String(v||'');
+const fromLines = t => t.split('\n').map(s=>s.trim()).filter(Boolean);
 
-sections.forEach((s, i) => {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.id = 'sec-' + i;
-  card.innerHTML = `
-    <div class="card-head" data-idx="${i}">
-      <div class="card-num">${i+1}</div>
-      <div class="card-title">${s.title}</div>
-      <div class="chev">▾</div>
-    </div>
-    <div class="card-body"><div class="card-body-inner">${s.body}</div></div>
-  `;
-  sectionsEl.appendChild(card);
-
-  const chip = document.createElement('div');
-  chip.className = 'chip';
-  chip.textContent = (i+1) + '장';
-  chip.dataset.idx = i;
-  chipsEl.appendChild(chip);
-});
-
-function toggleCard(idx, forceOpen){
-  const card = document.getElementById('sec-' + idx);
-  const body = card.querySelector('.card-body');
-  const isOpen = card.classList.contains('open');
-  if (forceOpen === true && isOpen) return;
-  if (isOpen && forceOpen !== true){
-    card.classList.remove('open');
-    body.style.maxHeight = null;
-  } else {
-    card.classList.add('open');
-    body.style.maxHeight = body.scrollHeight + 'px';
+function worldText(w){
+  let out = `제목: ${w.제목}\n한 줄: ${w.한줄}\n시대와 장소: ${w.시대와장소}\n톤: ${w.톤}\n`;
+  for(const [k,label] of FIELDS){
+    if(k==='시대와장소'||k==='톤') continue;
+    const l = asLines(w[k]);
+    if(l) out += `\n[${label.split('  ―')[0]}]\n${l}\n`;
   }
+  return out.trim();
+}
+function charText(c){
+  return `이름: ${c.이름}\n한 줄: ${c.한줄}\n성격: ${c.성격}\n말투: ${c.말투}\n배경: ${c.배경}` +
+    (c.예시대사 ? `\n예시 대사:\n${c.예시대사}` : '');
 }
 
-document.querySelectorAll('.card-head').forEach(h => {
-  h.addEventListener('click', () => toggleCard(parseInt(h.dataset.idx)));
-});
+/* ============================================================
+   세계 생성 · 견고성 점검
+============================================================ */
+const AXES = ['갈등축','제약','세력 균형','감각','판돈','미해결','톤 일관성','고유한 말'];
 
-document.querySelectorAll('.chip').forEach(c => {
-  c.addEventListener('click', () => {
-    const idx = parseInt(c.dataset.idx);
-    toggleCard(idx, true);
-    document.getElementById('sec-' + idx).scrollIntoView({behavior:'smooth', block:'start'});
+async function buildWorld(w){
+  const sys = `너는 인터랙티브 소설의 세계를 짓는 조력자다. 사용자가 준 제목과 메모를 읽고, 이야기를 굴릴 수 있을 만큼 구체적인 세계를 만든다.
+지켜야 할 것:
+- 사용자의 메모에 있는 것은 절대 바꾸지 말고, 빈 곳만 채운다.
+- 추상어를 피한다. "혼란스러운 시대"가 아니라 무엇이 어떻게 무너졌는지 쓴다.
+- 규칙에는 반드시 "할 수 없는 일"을 넣는다. 무엇이든 가능한 세계는 긴장이 없다.
+- 세력은 목표가 서로 부딪히도록 짠다.
+- 감각디테일은 눈·귀·코·살갗으로 잡히는 것만 쓴다.
+- 한국어로 쓴다.
+아래 형태의 JSON만 출력한다. 설명이나 마크다운 없이 JSON 하나만:
+{"한줄":"","시대와장소":"","톤":"","세계규칙":["",""],"갈등축":["",""],"세력":[{"이름":"","목표":"","부딪히는것":""}],"지역":[{"이름":"","특징":""}],"감각디테일":["",""],"용어":[{"말":"","뜻":""}]}
+세계규칙 4~6개, 갈등축 2~3개, 세력 3개, 지역 3~4개, 감각디테일 4~5개, 용어 4~6개.`;
+  const usr = `제목: ${w.제목}\n\n메모:\n${w.기본설정}` +
+    (worldText(w).length > 60 ? `\n\n이미 정해진 것(바꾸지 말 것):\n${worldText(w)}` : '');
+  const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:1.0}));
+  Object.assign(w, {
+    한줄:j.한줄||w.한줄, 시대와장소:j.시대와장소||w.시대와장소, 톤:j.톤||w.톤,
+    세계규칙:j.세계규칙||[], 갈등축:j.갈등축||[],
+    세력:(j.세력||[]).map(x=>`${x.이름} | ${x.목표} | ${x.부딪히는것||''}`),
+    지역:(j.지역||[]).map(x=>`${x.이름} | ${x.특징}`),
+    감각디테일:j.감각디테일||[],
+    용어:(j.용어||[]).map(x=>`${x.말} | ${x.뜻}`)
   });
-});
-
-// open first section by default
-toggleCard(0, true);
-
-// progress bar + active chip
-const progressBar = document.getElementById('progressBar');
-window.addEventListener('scroll', () => {
-  const h = document.documentElement;
-  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
-  progressBar.style.width = scrolled + '%';
-
-  let activeIdx = 0;
-  sections.forEach((s,i) => {
-    const el = document.getElementById('sec-' + i);
-    const rect = el.getBoundingClientRect();
-    if (rect.top < 140) activeIdx = i;
-  });
-  document.querySelectorAll('.chip').forEach((c,i) => {
-    c.classList.toggle('active', i === activeIdx);
-  });
-});
-
-// quick-help sheet
-const fabBtn = document.getElementById('fabBtn');
-const sheet = document.getElementById('sheet');
-const backdrop = document.getElementById('sheetBackdrop');
-const sheetClose = document.getElementById('sheetClose');
-
-function openSheet(){
-  sheet.classList.add('show');
-  backdrop.classList.add('show');
+  return w;
 }
-function closeSheet(){
-  sheet.classList.remove('show');
-  backdrop.classList.remove('show');
+
+async function runHarness(w){
+  const sys = `너는 세계관을 점검하는 편집자다. 아래 세계가 몰입할 만한 이야기를 굴릴 수 있는지 축별로 본다.
+축과 그 뜻:
+- 갈등축: 무엇이 무엇과 부딪히는지 분명한가
+- 제약: 할 수 없는 일이 분명한가
+- 세력 균형: 이해가 다른 집단이 둘 이상 있고 힘이 한쪽으로 쏠리지 않는가
+- 감각: 눈·귀·코로 잡히는 구체가 있는가
+- 판돈: 이야기의 주인공이 잃을 것이 있는가
+- 미해결: 아직 답이 없는 질문이 남아 있는가
+- 톤 일관성: 정해둔 것들이 하나의 온도를 유지하는가
+- 고유한 말: 이 세계에서만 통하는 이름과 말이 있는가
+점수는 0~5. 후하게 주지 말고, 부족하면 낮게 준다.
+보완은 그대로 세계 설정에 붙여 넣을 수 있는 완성된 한 문장으로 쓴다. 이미 충분한 축이면 보완은 빈 문자열로 둔다.
+반영칸은 다음 중 하나: 세계규칙, 갈등축, 세력, 지역, 감각디테일, 용어. 세력은 "이름 | 목표 | 부딪히는것", 지역은 "이름 | 특징", 용어는 "말 | 뜻" 형식으로 보완을 쓴다.
+한국어. JSON만 출력:
+{"총평":"","축":[{"이름":"갈등축","점수":3,"진단":"","보완":"","반영칸":"갈등축"}]}
+축은 위 여덟 개를 모두 포함한다.`;
+  const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:worldText(w)}], {json:true, temperature:0.4}));
+  w.harness = j; return w;
 }
-fabBtn.addEventListener('click', openSheet);
-sheetClose.addEventListener('click', closeSheet);
-backdrop.addEventListener('click', closeSheet);
+
+/* ============================================================
+   대화 — 프롬프트 조립
+============================================================ */
+const blankState = () => ({장면:'', 시각:'', 인물:[], 주인공평판:'', 최근사건:[], 미해결:[], 소지:[]});
+
+function stateText(st){
+  const L = [];
+  if(st.장면) L.push(`장면: ${st.장면}`);
+  if(st.시각) L.push(`시각: ${st.시각}`);
+  if(st.인물?.length) L.push('인물:\n' + st.인물.map(p=>`  - ${p.이름}: ${p.상태}${p.태도?' / '+p.태도:''}`).join('\n'));
+  if(st.주인공평판) L.push(`주인공을 보는 눈: ${st.주인공평판}`);
+  if(st.최근사건?.length) L.push('벌어진 일:\n' + st.최근사건.map(x=>`  - ${x}`).join('\n'));
+  if(st.미해결?.length) L.push('아직 안 풀린 것:\n' + st.미해결.map(x=>`  - ${x}`).join('\n'));
+  if(st.소지?.length) L.push(`지닌 것: ${st.소지.join(', ')}`);
+  return L.join('\n') || '(아직 없음)';
+}
+
+function buildSystem(chat){
+  const w = S.worlds.find(x=>x.id===chat.worldId);
+  const c = S.chars.find(x=>x.id===chat.charId);
+  return `너는 인터랙티브 소설을 진행한다. 아래 인물을 연기하고, 그 인물이 없는 장면은 서술자로 이어간다.
+
+━ 세계 ━
+${w ? worldText(w) : '(세계 없음)'}
+
+━ 연기할 인물 ━
+${c ? charText(c) : '(인물 없음)'}
+
+━ 지금 상태 ━
+${stateText(chat.state)}
+
+━ 반드시 지킬 것 ━
+1. "지금 상태"가 가장 최신 사실이다. 앞선 대화 기록과 어긋나면 상태 쪽을 따른다.
+2. 상태에 죽었다고 적힌 인물은 다시 등장하지 않는다. 다친 인물은 다친 채로 움직인다.
+3. 사용자가 보여준 힘·평판·앞선 행동은 주변 인물의 반응에 반드시 반영한다. 압도당한 쪽이 아무 일 없었다는 듯 덤비지 않는다.
+4. 사용자의 대사나 행동을 대신 쓰지 않는다. 사용자 차례에서 멈춘다.
+5. 갈등을 억지로 만들지 않는다. 상황이 조용하면 조용한 채로 둔다.
+6. 서술은 *별표* 사이에, 대사는 그냥 쓴다. 3~6문장. 한국어.`;
+}
+
+async function updateState(chat){
+  const sys = `너는 이야기의 현재 상태를 기록한다. 기존 상태와 방금 오간 대화를 읽고, 갱신된 상태 전체를 JSON으로 낸다.
+- 바뀌지 않은 항목은 그대로 옮겨 적는다. 빠뜨리면 기억이 사라진다.
+- 인물의 죽음·부상·태도 변화는 반드시 반영한다.
+- 최근사건은 최대 6개, 오래된 것부터 지운다. 판을 뒤집은 사건은 남긴다.
+- 주인공평판에는 주변 인물이 주인공을 어떻게 보는지 한 줄로 적는다.
+- 한국어. JSON만:
+{"장면":"","시각":"","인물":[{"이름":"","상태":"","태도":""}],"주인공평판":"","최근사건":[],"미해결":[],"소지":[]}`;
+  const last = chat.msgs.slice(-4).map(m=>`${m.role==='user'?'사용자':'이야기'}: ${m.content}`).join('\n\n');
+  const usr = `기존 상태:\n${JSON.stringify(chat.state, null, 1)}\n\n방금 오간 대화:\n${last}`;
+  chat.state = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:0.2}));
+}
+
+/* ============================================================
+   화면
+============================================================ */
+const view = document.getElementById('view');
+const hsub = document.getElementById('hsub');
+const hact = document.getElementById('hact');
+
+function render(){
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-current', String(b.dataset.tab===S.tab)));
+  hact.hidden = true; hact.onclick = null; hsub.textContent = '';
+  ({worlds:vWorlds, chars:vChars, chats:vChats, settings:vSettings})[S.tab]();
+}
+function topAction(label, fn){ hact.hidden=false; hact.textContent=label; hact.onclick=fn; }
+function go(tab, open){ S.tab=tab; S.open=open??null; view.scrollTop=0; render(); }
+
+/* ---------- 세계 ---------- */
+function vWorlds(){
+  if(S.open){ return worldSheet(S.worlds.find(w=>w.id===S.open)); }
+  hsub.textContent = '지은 세계';
+  topAction('새 세계', ()=>{ const w=blankWorld(); S.worlds.unshift(w); save('worlds'); go('worlds', w.id); });
+  view.innerHTML = S.worlds.length ? '' :
+    `<div class="empty" style="margin-top:40px"><b>아직 세계가 없습니다</b>제목과 몇 줄의 메모만 있으면<br>나머지는 같이 채워 나갑니다.</div>`;
+  S.worlds.forEach(w=>{
+    const b = document.createElement('button'); b.className='card';
+    b.innerHTML = `<h3>${esc(w.제목||'제목 없음')}</h3><p>${esc(w.한줄||w.기본설정||'아직 비어 있습니다')}</p>`
+      + (w.harness ? `<div class="tag" style="margin-top:6px">견고성 ${w.harness.축.reduce((a,x)=>a+x.점수,0)} / 40</div>`:'');
+    b.onclick = ()=> go('worlds', w.id);
+    view.appendChild(b);
+  });
+}
+
+function worldSheet(w){
+  if(!w) return go('worlds');
+  hsub.textContent = '세계';
+  topAction('← 목록', ()=> go('worlds'));
+  view.innerHTML = '';
+
+  const sheet = document.createElement('div'); sheet.className='sheet';
+  const ti = document.createElement('input');
+  ti.className='title'; ti.value = w.제목; ti.placeholder='세계의 이름';
+  ti.style.cssText='font-size:24px;font-weight:700;line-height:1.3;margin-bottom:2px';
+  ti.oninput = ()=>{ w.제목 = ti.value; save('worlds'); };
+  sheet.appendChild(ti);
+
+  const one = document.createElement('input');
+  one.className='oneline'; one.value = w.한줄; one.placeholder='한 줄로 말하면';
+  one.style.cssText='font-family:var(--sans);font-size:13.5px;color:#5C5545;margin-bottom:14px';
+  one.oninput = ()=>{ w.한줄 = one.value; save('worlds'); };
+  sheet.appendChild(one);
+
+  const memo = fld('처음 적은 메모', 'textarea', w.기본설정, v=>{ w.기본설정=v; save('worlds'); },
+    '여기에 몇 줄만 적고 아래 단추를 누르면 나머지를 채웁니다.');
+  sheet.appendChild(memo);
+
+  FIELDS.forEach(([k,label,kind])=>{
+    sheet.appendChild(fld(label, kind==='line'?'input':'textarea', kind==='line'? w[k] : asLines(w[k]),
+      v=>{ w[k] = kind==='line' ? v : fromLines(v); save('worlds'); }));
+  });
+  view.appendChild(sheet);
+
+  const gen = document.createElement('button');
+  gen.className='btn'; gen.textContent='세부 설정 채우기';
+  gen.onclick = async ()=>{
+    if(!w.제목 && !w.기본설정) return toast('제목이나 메모를 먼저 적어주세요.', true);
+    await guard(gen, '짓는 중…', async ()=>{ await buildWorld(w); save('worlds'); render(); toast('채웠습니다. 마음에 안 드는 곳은 직접 고치세요.'); });
+  };
+  view.appendChild(gen);
+
+  const row = document.createElement('div'); row.className='row'; row.style.marginTop='8px';
+  const chk = document.createElement('button');
+  chk.className='btn ghost'; chk.textContent='견고성 점검';
+  chk.onclick = ()=> guard(chk, '읽는 중…', async ()=>{ await runHarness(w); save('worlds'); render(); });
+  row.appendChild(chk);
+  const del = document.createElement('button');
+  del.className='btn danger'; del.textContent='세계 지우기';
+  del.onclick = ()=>{ if(confirm('이 세계를 지웁니다. 되돌릴 수 없습니다.')){
+    S.worlds = S.worlds.filter(x=>x.id!==w.id); save('worlds'); go('worlds'); } };
+  row.appendChild(del);
+  view.appendChild(row);
+
+  if(w.harness) view.appendChild(harnessEl(w));
+}
+
+function fld(label, tag, val, onInput, note){
+  const d = document.createElement('div'); d.className='fld';
+  const s = document.createElement('span'); s.textContent = label; d.appendChild(s);
+  const el = document.createElement(tag);
+  el.value = val || '';
+  el.placeholder = tag==='textarea' ? '한 줄에 하나씩' : '—';
+  if(tag==='textarea'){
+    el.rows = Math.max(2, String(val||'').split('\n').length);
+    el.style.overflow='hidden';
+    const fit = ()=>{ el.style.height='auto'; el.style.height = el.scrollHeight+'px'; };
+    setTimeout(fit, 0); el.addEventListener('input', fit);
+  }
+  el.addEventListener('input', ()=> onInput(el.value));
+  d.appendChild(el);
+  if(note){ const n=document.createElement('div'); n.className='note'; n.textContent=note; d.appendChild(n); }
+  return d;
+}
+
+function harnessEl(w){
+  const h = w.harness;
+  const box = document.createElement('div'); box.className='harness';
+  box.style.marginTop='16px';
+  const total = h.축.reduce((a,x)=>a+x.점수,0);
+  const eb = document.createElement('div'); eb.className='eyebrow'; eb.style.margin='0 0 10px';
+  eb.textContent = `견고성  ${total} / 40`;
+  box.appendChild(eb);
+  const t = document.createElement('p'); t.className='total'; t.textContent = h.총평; box.appendChild(t);
+
+  h.축.forEach((a, i)=>{
+    const d = document.createElement('div'); d.className='axis';
+    const pips = Array.from({length:5}, (_,n)=>
+      `<div class="pip ${n < a.점수 ? 'on' : ''} ${a.점수<=2?'low':''}"></div>`).join('');
+    d.innerHTML = `<div class="head"><div class="nm">${esc(a.이름)}</div><div class="pips">${pips}</div></div>
+      <p class="dx">${esc(a.진단)}</p>`;
+    if(a.보완){
+      const f = document.createElement('div'); f.className='fix'; f.textContent = a.보완; d.appendChild(f);
+      const ap = document.createElement('button'); ap.className='apply'; ap.textContent='세계에 반영';
+      ap.onclick = ()=>{
+        const key = FIELDS.some(([k])=>k===a.반영칸) ? a.반영칸 : '세계규칙';
+        if(Array.isArray(w[key])) w[key] = [...w[key], a.보완]; else w[key] = (w[key]?w[key]+' ':'') + a.보완;
+        save('worlds'); ap.dataset.done='1'; ap.textContent='반영했습니다';
+        toast(`${key}에 넣었습니다.`);
+      };
+      d.appendChild(ap);
+    }
+    box.appendChild(d);
+  });
+  return box;
+}
+
+/* ---------- 인물 ---------- */
+const blankChar = () => ({id:uid(), 이름:'', 한줄:'', 성격:'', 말투:'', 배경:'', 첫인사:'', 예시대사:'', worldId:''});
+
+function vChars(){
+  if(S.open){ return charSheet(S.chars.find(c=>c.id===S.open)); }
+  hsub.textContent = '인물';
+  topAction('새 인물', ()=>{ const c=blankChar(); S.chars.unshift(c); save('chars'); go('chars', c.id); });
+  view.innerHTML = S.chars.length ? '' :
+    `<div class="empty" style="margin-top:40px"><b>아직 인물이 없습니다</b>세계를 하나 고르고 이름만 정하면<br>나머지 초안은 만들어 드립니다.</div>`;
+  S.chars.forEach(c=>{
+    const w = S.worlds.find(x=>x.id===c.worldId);
+    const b = document.createElement('button'); b.className='card';
+    b.innerHTML = `<h3>${esc(c.이름||'이름 없음')}</h3><p>${esc(c.한줄||'아직 비어 있습니다')}</p>`
+      + (w?`<div class="tag" style="margin-top:6px">${esc(w.제목)}</div>`:'');
+    b.onclick = ()=> go('chars', c.id);
+    view.appendChild(b);
+  });
+}
+
+function charSheet(c){
+  if(!c) return go('chars');
+  hsub.textContent = '인물';
+  topAction('← 목록', ()=> go('chars'));
+  view.innerHTML = '';
+  const F = [['이름','이름','input'],['한줄','한 줄로 말하면','input'],['성격','성격','textarea'],
+    ['말투','말투','textarea'],['배경','배경','textarea'],['첫인사','첫 장면','textarea'],['예시대사','예시 대사','textarea']];
+
+  const ws = document.createElement('label'); ws.className='f';
+  ws.innerHTML = `<span>속한 세계</span>`;
+  const sel = document.createElement('select');
+  sel.innerHTML = `<option value="">— 없음 —</option>` +
+    S.worlds.map(w=>`<option value="${w.id}" ${w.id===c.worldId?'selected':''}>${esc(w.제목||'제목 없음')}</option>`).join('');
+  sel.onchange = ()=>{ c.worldId = sel.value; save('chars'); };
+  ws.appendChild(sel); view.appendChild(ws);
+
+  F.forEach(([k,label,tag])=>{
+    const l = document.createElement('label'); l.className='f';
+    l.innerHTML = `<span>${label}</span>`;
+    const el = document.createElement(tag);
+    if(tag==='textarea') el.rows = k==='배경'||k==='첫인사' ? 4 : 3;
+    el.value = c[k] || '';
+    el.addEventListener('input', ()=>{ c[k]=el.value; save('chars'); });
+    l.appendChild(el); view.appendChild(l);
+  });
+
+  const gen = document.createElement('button');
+  gen.className='btn'; gen.textContent='초안 만들기'; gen.style.marginTop='18px';
+  gen.onclick = ()=>{
+    if(!c.이름 && !c.한줄) return toast('이름이나 한 줄 소개를 먼저 적어주세요.', true);
+    guard(gen, '짓는 중…', async ()=>{
+      const w = S.worlds.find(x=>x.id===c.worldId);
+      const sys = `너는 인터랙티브 소설의 인물을 짓는다. 세계와 어울리되 납작하지 않게 만든다.
+- 성격에는 반드시 약점이나 모순을 하나 넣는다.
+- 말투는 흉내 낼 수 있게 구체적으로 쓴다. 어미, 자주 쓰는 말, 침묵하는 순간.
+- 첫 장면은 사용자가 바로 끼어들 수 있는 상황으로, *서술*과 대사를 섞어 3~5문장.
+- 예시 대사는 상황이 다른 세 줄.
+- 한국어. JSON만: {"한줄":"","성격":"","말투":"","배경":"","첫인사":"","예시대사":""}`;
+      const usr = (w?`세계:\n${worldText(w)}\n\n`:'') + `인물:\n${charText(c)}`;
+      const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:1.0}));
+      Object.assign(c, {한줄:j.한줄||c.한줄, 성격:j.성격, 말투:j.말투, 배경:j.배경, 첫인사:j.첫인사, 예시대사:j.예시대사});
+      save('chars'); render(); toast('만들었습니다. 고치고 싶은 곳은 바로 고치세요.');
+    });
+  };
+  view.appendChild(gen);
+
+  const row = document.createElement('div'); row.className='row'; row.style.marginTop='8px';
+  const start = document.createElement('button');
+  start.className='btn ghost'; start.textContent='이 인물과 대화 시작';
+  start.onclick = ()=>{
+    if(!c.이름) return toast('이름을 먼저 정해주세요.', true);
+    const chat = {id:uid(), charId:c.id, worldId:c.worldId, 제목:c.이름, state:blankState(),
+      msgs: c.첫인사 ? [{role:'assistant', content:c.첫인사}] : [], 연날:Date.now()};
+    S.chats.unshift(chat); save('chats'); go('chats', chat.id);
+  };
+  row.appendChild(start);
+  const del = document.createElement('button');
+  del.className='btn danger'; del.textContent='인물 지우기';
+  del.onclick = ()=>{ if(confirm('이 인물을 지웁니다.')){ S.chars=S.chars.filter(x=>x.id!==c.id); save('chars'); go('chars'); } };
+  row.appendChild(del);
+  view.appendChild(row);
+}
+
+/* ---------- 대화 ---------- */
+function vChats(){
+  if(S.open){ return chatView(S.chats.find(c=>c.id===S.open)); }
+  hsub.textContent = '대화';
+  view.innerHTML = S.chats.length ? '' :
+    `<div class="empty" style="margin-top:40px"><b>아직 대화가 없습니다</b>인물 탭에서 인물을 고르고<br>대화 시작을 누르세요.</div>`;
+  S.chats.forEach(ch=>{
+    const c = S.chars.find(x=>x.id===ch.charId);
+    const last = ch.msgs[ch.msgs.length-1];
+    const b = document.createElement('button'); b.className='card';
+    b.innerHTML = `<h3>${esc(c?.이름 || ch.제목)}</h3><p>${esc((last?.content||'아직 비어 있습니다').replace(/\*/g,''))}</p>
+      <div class="tag" style="margin-top:6px">${ch.msgs.length}턴</div>`;
+    b.onclick = ()=> go('chats', ch.id);
+    view.appendChild(b);
+  });
+}
+
+function chatView(chat){
+  if(!chat) return go('chats');
+  const c = S.chars.find(x=>x.id===chat.charId);
+  hsub.textContent = c?.이름 || '대화';
+  topAction('← 목록', ()=> go('chats'));
+  view.innerHTML = '';
+
+  /* 상태 패널 */
+  const sb = document.createElement('div'); sb.className='statebar';
+  const shown = DB.get('sbopen', false);
+  sb.innerHTML = `<button class="sb-head" style="width:100%"><div class="dot"></div>지금 상태<div class="chev">${shown?'닫기':'보기'}</div></button>`;
+  const body = document.createElement('div'); body.className='sb-body'; body.hidden = !shown;
+  const paint = ()=>{ body.textContent = stateText(chat.state); };
+  paint();
+  const edit = document.createElement('button');
+  edit.className='apply'; edit.style.cssText='margin-top:9px;font-size:11px;color:var(--verdigris);border:1px solid var(--verdigris-dim);border-radius:3px;padding:5px 10px';
+  edit.textContent = '직접 고치기';
+  edit.onclick = ()=>{
+    const ta = document.createElement('textarea');
+    ta.value = JSON.stringify(chat.state, null, 1);
+    const ok = document.createElement('button');
+    ok.className='apply'; ok.style.cssText=edit.style.cssText; ok.textContent='저장';
+    ok.onclick = ()=>{ try{ chat.state = JSON.parse(ta.value); save('chats'); body.innerHTML=''; paint(); body.appendChild(edit); toast('고쳤습니다.'); }
+      catch(e){ toast('JSON 형식이 맞지 않습니다.', true); } };
+    body.innerHTML=''; body.appendChild(ta); body.appendChild(ok);
+  };
+  body.appendChild(edit);
+  sb.querySelector('.sb-head').onclick = ()=>{
+    body.hidden = !body.hidden; DB.set('sbopen', !body.hidden);
+    sb.querySelector('.chev').textContent = body.hidden ? '보기' : '닫기';
+  };
+  sb.appendChild(body);
+  view.appendChild(sb);
+
+  /* 메시지 */
+  const list = document.createElement('div'); view.appendChild(list);
+  const drawMsgs = ()=>{
+    list.innerHTML = '';
+    chat.msgs.forEach(m=> list.appendChild(msgEl(m, c)));
+  };
+  drawMsgs();
+
+  /* 입력 */
+  const comp = document.createElement('div'); comp.className='composer';
+  comp.innerHTML = `<div class="box"><textarea rows="1" placeholder="무엇을 합니까"></textarea><button class="send">↑</button></div>
+    <div class="tools"><button id="t-undo">되감기</button><button id="t-regen">다시 쓰기</button><button id="t-sync">상태 새로 읽기</button><button id="t-del" style="margin-left:auto;color:var(--rust)">대화 지우기</button></div>`;
+  view.appendChild(comp);
+  const ta = comp.querySelector('textarea'), sendBtn = comp.querySelector('.send');
+  ta.addEventListener('input', ()=>{ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,130)+'px'; });
+
+  const scroll = ()=> view.scrollTo({top: view.scrollHeight, behavior:'smooth'});
+
+  async function turn(){
+    if(S.busy) return;
+    const text = ta.value.trim(); if(!text) return;
+    ta.value=''; ta.style.height='auto';
+    chat.msgs.push({role:'user', content:text});
+    save('chats'); drawMsgs(); scroll();
+    await respond(false);
+  }
+
+  async function respond(regen){
+    S.busy = true; sendBtn.disabled = true;
+    const holder = document.createElement('div'); holder.className='msg ai';
+    holder.innerHTML = `<div class="who">${esc(c?.이름||'이야기')}</div><div class="body thinking">쓰는 중…</div>`;
+    list.appendChild(holder); scroll();
+    const bodyEl = holder.querySelector('.body');
+    try{
+      const keep = Number(S.settings.keep) || 14;
+      const hist = chat.msgs.slice(-keep).map(m=>({role:m.role, content:m.content}));
+      const out = await llm([{role:'system', content: buildSystem(chat)}, ...hist],
+        {temperature:0.95, onDelta: t=>{ bodyEl.classList.remove('thinking'); bodyEl.innerHTML = fmt(t); scroll(); }});
+      chat.msgs.push({role:'assistant', content: out});
+      save('chats'); drawMsgs();
+      if(S.settings.autostate){
+        try{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); }
+        catch(e){ toast('상태를 갱신하지 못했습니다. 대화는 그대로 이어집니다.', true); }
+      }
+    }catch(e){
+      holder.remove(); toast(e.message, true);
+    }finally{ S.busy=false; sendBtn.disabled=false; scroll(); }
+  }
+
+  sendBtn.onclick = turn;
+  ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey && !/Mobi/.test(navigator.userAgent)){ e.preventDefault(); turn(); } });
+
+  comp.querySelector('#t-undo').onclick = ()=>{
+    while(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='assistant') chat.msgs.pop();
+    if(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='user') ta.value = chat.msgs.pop().content;
+    save('chats'); drawMsgs(); toast('한 걸음 되돌렸습니다.');
+  };
+  comp.querySelector('#t-regen').onclick = ()=>{
+    if(S.busy) return;
+    while(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='assistant') chat.msgs.pop();
+    save('chats'); drawMsgs(); respond(true);
+  };
+  comp.querySelector('#t-sync').onclick = async (e)=>{
+    await guard(e.target, '읽는 중…', async ()=>{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); toast('상태를 다시 읽었습니다.'); });
+  };
+  comp.querySelector('#t-del').onclick = ()=>{
+    if(confirm('이 대화를 지웁니다. 되돌릴 수 없습니다.')){ S.chats = S.chats.filter(x=>x.id!==chat.id); save('chats'); go('chats'); }
+  };
+  setTimeout(scroll, 60);
+}
+
+const fmt = t => esc(t).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+function msgEl(m, c){
+  const d = document.createElement('div');
+  d.className = 'msg ' + (m.role==='user'?'me':'ai');
+  d.innerHTML = m.role==='user'
+    ? `<div class="body">${esc(m.content)}</div>`
+    : `<div class="who">${esc(c?.이름||'이야기')}</div><div class="body">${fmt(m.content)}</div>`;
+  return d;
+}
+
+/* ---------- 설정 ---------- */
+function vSettings(){
+  hsub.textContent = '설정';
+  const st = S.settings;
+  view.innerHTML = `
+    <label class="f"><span>API 키</span><input id="s-key" type="password" placeholder="sk-…" value="${esc(st.key)}">
+      <div class="hint">이 기기에만 저장됩니다. 서버로 보내지 않습니다.</div></label>
+    <label class="f"><span>주소</span><input id="s-base" value="${esc(st.base)}">
+      <div class="hint">브라우저가 직접 호출을 막으면 프록시 주소로 바꾸세요.</div></label>
+    <label class="f"><span>모델</span><input id="s-model" value="${esc(st.model)}"></label>
+    <label class="f"><span>원문으로 넘길 최근 턴</span><input id="s-keep" type="number" min="4" max="40" value="${st.keep}">
+      <div class="hint">이보다 오래된 일은 상태 기록이 대신 기억합니다.</div></label>
+    <label class="f"><span>상태 자동 기록</span>
+      <select id="s-auto"><option value="1" ${st.autostate?'selected':''}>켜기</option><option value="0" ${!st.autostate?'selected':''}>끄기</option></select>
+      <div class="hint">매 턴 한 번 더 호출합니다. 끄면 값은 싸지고 기억은 흐려집니다.</div></label>
+    <div class="eyebrow">기록</div>
+    <div class="row"><button class="btn ghost" id="s-out">내보내기</button><button class="btn ghost" id="s-in">가져오기</button></div>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.7">
+      모든 기록은 이 브라우저 안에만 있습니다. 브라우저 저장소를 비우면 함께 사라지니 가끔 내보내 두세요.</p>`;
+  const bind = (id,k,f=(v=>v)) => { const el=document.getElementById(id);
+    el.addEventListener('input', ()=>{ st[k]=f(el.value); save('settings'); });
+    el.addEventListener('change', ()=>{ st[k]=f(el.value); save('settings'); }); };
+  bind('s-key','key'); bind('s-base','base'); bind('s-model','model');
+  bind('s-keep','keep', v=>Number(v)); bind('s-auto','autostate', v=>v==='1');
+
+  document.getElementById('s-out').onclick = ()=>{
+    const blob = new Blob([JSON.stringify({worlds:S.worlds, chars:S.chars, chats:S.chats}, null, 1)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = `모루-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  };
+  document.getElementById('s-in').onclick = ()=>{
+    const i = document.createElement('input'); i.type='file'; i.accept='.json';
+    i.onchange = async ()=>{
+      try{
+        const j = JSON.parse(await i.files[0].text());
+        S.worlds = j.worlds||[]; S.chars = j.chars||[]; S.chats = j.chats||[];
+        save('worlds'); save('chars'); save('chats'); toast('가져왔습니다.'); render();
+      }catch(e){ toast('파일을 읽지 못했습니다.', true); }
+    };
+    i.click();
+  };
+}
+
+/* ---------- 공통 ---------- */
+async function guard(btn, label, fn){
+  if(S.busy) return;
+  S.busy = true; const old = btn.textContent; btn.textContent = label; btn.disabled = true;
+  try{ await fn(); }
+  catch(e){ toast(e.message, true); }
+  finally{ S.busy=false; btn.disabled=false; if(btn.isConnected) btn.textContent = old; }
+}
+
+document.querySelectorAll('nav button').forEach(b=> b.onclick = ()=> go(b.dataset.tab));
+render();
 </script>
-
 </body>
 </html>
