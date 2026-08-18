@@ -156,6 +156,38 @@ label.f .hint{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:0}
   border:1px solid var(--verdigris);color:#EAF5F1;font-size:15px;flex:none}
 .composer .tools{display:flex;gap:14px;padding:8px 3px 0;font-size:11.5px;color:var(--muted);letter-spacing:.05em}
 .thinking{color:var(--muted);font-size:13px;font-style:italic}
+
+/* ---- 컨텍스트 게이지 ---- */
+.ctx{margin:0 0 12px;font-size:11px;color:var(--muted);letter-spacing:.04em}
+.ctx .top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.ctx .top .n{font-family:var(--mono)}
+.ctx .top .fold{margin-left:auto;font-size:11px;padding:5px 10px;border-radius:3px;
+  border:1px solid var(--line);color:var(--muted)}
+.ctx .top .fold[data-ready="1"]{border-color:var(--brass);color:var(--brass)}
+.ctx .bar{height:3px;background:var(--ink-3);border-radius:2px;overflow:hidden}
+.ctx .fill{height:100%;background:var(--verdigris-dim);transition:width .3s}
+.ctx .fill[data-lv="warn"]{background:var(--brass)}
+.ctx .fill[data-lv="over"]{background:var(--rust)}
+
+/* ---- 지난 장면 ---- */
+.eps{background:var(--ink-2);border:1px solid var(--line);border-radius:3px;margin:0 0 14px;overflow:hidden}
+.eps .hd{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:11px;
+  color:var(--brass);letter-spacing:.08em;width:100%}
+.eps .hd .chev{margin-left:auto;color:var(--muted)}
+.eps .bd{padding:0 12px 10px}
+.ep{border-top:1px solid var(--line);padding:10px 0 9px}
+.ep:first-child{border-top:none}
+.ep .r1{display:flex;align-items:baseline;gap:7px}
+.ep .no{font-family:var(--mono);font-size:10.5px;color:var(--verdigris)}
+.ep .ti{font-family:var(--serif);font-size:14px;color:var(--paper);flex:1;
+  background:none;border:none;outline:none;border-bottom:1px solid transparent;padding:0}
+.ep .ti:focus{border-bottom-color:var(--verdigris-dim)}
+.ep .stars{display:flex;gap:2px}
+.ep .stars button{font-size:12px;color:var(--ink-3);line-height:1}
+.ep .stars button[data-on="1"]{color:var(--brass)}
+.ep .kw{font-size:11px;color:var(--muted);margin-top:4px}
+.ep .frag{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.6}
+.ep .rm{font-size:10.5px;color:var(--rust);margin-top:6px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -186,15 +218,38 @@ const DB = {
   set(k, v){ localStorage.setItem('moru:'+k, JSON.stringify(v)); }
 };
 let S = {
-  settings: DB.get('settings', {key:'', base:'https://api.deepseek.com', model:'deepseek-chat', keep:14, autostate:true}),
+  settings: DB.get('settings', {key:'', base:'https://api.deepseek.com', model:'deepseek-chat',
+    keep:14, autostate:true, cap:9000, mark:6000, epcap:3}),
   worlds:   DB.get('worlds', []),
   chars:    DB.get('chars', []),
   chats:    DB.get('chats', []),
+  seq:      DB.get('seq', 0),
   tab:'worlds', open:null, busy:false
 };
 const save = k => DB.set(k, S[k]);
 const uid  = () => Math.random().toString(36).slice(2,10);
 const esc  = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* 인물 번호는 전역에서 한 번 매기고 다시 쓰지 않는다. 지운 인물의 번호는 공석으로 남는다. */
+const nextNo = () => { S.seq = (S.seq||0) + 1; DB.set('seq', S.seq); return S.seq; };
+
+/* 토큰 어림값. 정확한 값이 아니라 눈금용이다.
+   영문·기호는 3.6자당 1토큰, 한글은 1자당 0.85토큰으로 잡았다. 실측으로 보정할 것. */
+function estTok(s){
+  s = String(s ?? ''); let a = 0, b = 0;
+  for(let i = 0; i < s.length; i++){ s.charCodeAt(i) < 128 ? a++ : b++; }
+  return Math.round(a / 3.6 + b * 0.85);
+}
+
+/* 이전 판 기록 맞추기 */
+(function migrate(){
+  let a = false, b = false;
+  S.chars.forEach(c=>{ if(!c.no){ c.no = nextNo(); a = true; } });
+  S.chats.forEach(ch=>{ if(!Array.isArray(ch.eps)){ ch.eps = []; b = true; } if(ch.cut == null){ ch.cut = 0; b = true; } });
+  const st = S.settings;
+  if(st.cap == null){ st.cap = 9000; st.mark = 6000; st.epcap = 3; DB.set('settings', st); }
+  if(a) save('chars'); if(b) save('chats');
+})();
 
 function toast(msg, isErr){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
@@ -292,9 +347,14 @@ function worldText(w){
   }
   return out.trim();
 }
+const 모순축 = [['원하는것','원하는 것'],['실은필요한것','실은 필요한 것'],['두려운것','두려운 것'],['자기기만','자기기만']];
+
 function charText(c){
-  return `이름: ${c.이름}\n한 줄: ${c.한줄}\n성격: ${c.성격}\n말투: ${c.말투}\n배경: ${c.배경}` +
-    (c.예시대사 ? `\n예시 대사:\n${c.예시대사}` : '');
+  let t = `번호: ${c.no ?? '-'}\n이름: ${c.이름}\n한 줄: ${c.한줄}\n성격: ${c.성격}\n말투: ${c.말투}\n배경: ${c.배경}`;
+  const m = 모순축.filter(([k])=>c[k]).map(([k,l])=>`  - ${l}: ${c[k]}`);
+  if(m.length) t += `\n안에서 부딪히는 것:\n${m.join('\n')}`;
+  if(c.예시대사) t += `\n예시 대사:\n${c.예시대사}`;
+  return t;
 }
 
 /* ============================================================
@@ -354,11 +414,22 @@ async function runHarness(w){
 ============================================================ */
 const blankState = () => ({장면:'', 시각:'', 인물:[], 주인공평판:'', 최근사건:[], 미해결:[], 소지:[]});
 
+/* 인물 상태는 세계 상태 안에 함께 둔다.
+   따로 떼면 갱신 호출이 하나 더 늘어나는데, 에피소드 요약 호출이 이미 붙어 있어
+   턴당 호출이 셋을 넘어간다. 합친 JSON이 커져 정확도가 떨어지면 그때 분리한다. */
 function stateText(st){
   const L = [];
   if(st.장면) L.push(`장면: ${st.장면}`);
   if(st.시각) L.push(`시각: ${st.시각}`);
-  if(st.인물?.length) L.push('인물:\n' + st.인물.map(p=>`  - ${p.이름}: ${p.상태}${p.태도?' / '+p.태도:''}`).join('\n'));
+  if(st.인물?.length) L.push('인물:\n' + st.인물.map(p=>{
+    const head = [p.상태, p.태도 && '태도 '+p.태도, p.감정 && '감정 '+p.감정,
+      (p.경계도 !== '' && p.경계도 != null) && '경계 '+p.경계도].filter(Boolean).join(' / ');
+    let s = `  - [${p.번호 ?? '-'}] ${p.이름}: ${head}`;
+    if(p.관계단계) s += `\n      주인공을 보는 자리: ${p.관계단계}` + (p.근거에피 ? ` (근거 ${p.근거에피})` : '');
+    if(p.장면목표) s += `\n      이 장면에서 얻어내려는 것: ${p.장면목표}`;
+    if(p.방금받은인상) s += `\n      방금 받은 인상: ${p.방금받은인상}`;
+    return s;
+  }).join('\n'));
   if(st.주인공평판) L.push(`주인공을 보는 눈: ${st.주인공평판}`);
   if(st.최근사건?.length) L.push('벌어진 일:\n' + st.최근사건.map(x=>`  - ${x}`).join('\n'));
   if(st.미해결?.length) L.push('아직 안 풀린 것:\n' + st.미해결.map(x=>`  - ${x}`).join('\n'));
@@ -366,40 +437,167 @@ function stateText(st){
   return L.join('\n') || '(아직 없음)';
 }
 
-function buildSystem(chat){
+/* ============================================================
+   지난 장면 — 접어 둔 에피소드
+   상태가 "지금 어떤가"를 들고 있다면, 에피소드는 "그때 무슨 일이 있었나"를 들고 있다.
+   상태만으로는 "언제 봤는데?"에 답할 수 없어서 따로 둔다.
+============================================================ */
+const nextEpNo = chat => (chat.eps?.length ? Math.max(...chat.eps.map(e=>e.no)) : 0) + 1;
+const epName = n => { const c = S.chars.find(x=>x.no===n); return c ? c.이름 : `#${n}`; };
+
+function epLine(e){
+  const k = e.급소?.length ? ` · 급소 ${e.급소.join(', ')}` : '';
+  const p = e.인물?.length ? ` · 인물 ${e.인물.join(',')}` : '';
+  return `[에피${e.no}] ${e.제목}${p}${k}`;
+}
+function epFull(e){
+  const frag = (e.조각||[]).map(f=>`    · ${f.상대!=null?`[${f.상대}] `:''}${f.요약}`).join('\n');
+  return epLine(e) + (frag ? '\n' + frag : '');
+}
+
+/* 지금 장면에 있는 인물, 그리고 별표를 단 인물이 나오는 에피소드만 펼친다.
+   나머지는 한 줄 제목만 남긴다 — 모델이 목록을 훑고 필요하면 스스로 알아본다. */
+function epsText(chat, openCap){
+  if(!chat.eps?.length) return '';
+  const active = new Set((chat.state?.인물||[]).map(p=>p.번호).filter(n=>n!=null));
+  S.chars.filter(c=>c.pin).forEach(c=> active.add(c.no));
+  const rel = chat.eps.filter(e => e.인물?.some(n => active.has(n)));
+  rel.sort((a,b)=> (b.중요도||1)-(a.중요도||1) || b.no-a.no);
+  const open = new Set(rel.slice(0, Math.max(0, openCap)).map(e=>e.no));
+  return chat.eps.map(e => open.has(e.no) ? epFull(e) : epLine(e)).join('\n');
+}
+
+/* ============================================================
+   프롬프트 조립 — 캐시가 걸리도록 고정과 변동을 가른다
+   DeepSeek 캐시는 0번째 토큰부터 프리픽스가 그대로여야 걸린다.
+   그래서 매 턴 바뀌는 블록(상태·지난 장면)은 대화 기록보다도 뒤,
+   마지막 발화 바로 앞에 끼운다. 앞의 규칙·세계·인물과 과거 턴이 통째로 프리픽스가 된다.
+============================================================ */
+function buildFixed(chat){
   const w = S.worlds.find(x=>x.id===chat.worldId);
   const c = S.chars.find(x=>x.id===chat.charId);
   return `너는 인터랙티브 소설을 진행한다. 아래 인물을 연기하고, 그 인물이 없는 장면은 서술자로 이어간다.
+
+━ 반드시 지킬 것 ━
+1. 뒤에 오는 "지금 상태"가 가장 최신 사실이다. 앞선 대화 기록과 어긋나면 상태 쪽을 따른다.
+2. 상태에 죽었다고 적힌 인물은 다시 등장하지 않는다. 다친 인물은 다친 채로 움직인다.
+3. 사용자가 보여준 힘·평판·앞선 행동은 주변 인물의 반응에 반드시 반영한다. 압도당한 쪽이 아무 일 없었다는 듯 덤비지 않는다.
+4. 사용자의 대사나 행동을 대신 쓰지 않는다. 사용자 차례에서 멈춘다.
+5. 갈등을 억지로 만들지 않는다. 상황이 조용하면 조용한 채로 둔다.
+6. 인물의 "안에서 부딪히는 것"은 대놓고 설명하지 않는다. 가끔 자기기만이 말끝에서 새어나오게 한다.
+7. 인물마다 "이 장면에서 얻어내려는 것"이 있으면 그것을 향해 움직인다. 연설만 하지 않는다.
+8. 말투의 뼈대(어미, 자주 쓰는 말)는 유지하되, 감정에 따라 온도는 흔들려도 된다.
+9. "지난 장면"에 적힌 것은 실제로 있었던 일이다. 흐름에 맞을 때만 구체적으로 꺼낸다 — 매번 꺼내면 부자연스럽다.
+10. 지난 장면 목록에 없는 과거를 확정된 사실처럼 말하지 않는다. 기억이 흐리면 인물이 얼버무리게 둔다.
+11. 서술은 *별표* 사이에, 대사는 그냥 쓴다. 사용자 입력이 짧으면 3문장 안팎, 장면이 바뀌면 6문장까지. 한국어.
 
 ━ 세계 ━
 ${w ? worldText(w) : '(세계 없음)'}
 
 ━ 연기할 인물 ━
-${c ? charText(c) : '(인물 없음)'}
+${c ? charText(c) : '(인물 없음)'}`;
+}
 
-━ 지금 상태 ━
-${stateText(chat.state)}
+function buildLive(chat, openCap){
+  let t = `━ 지금 상태 ━\n${stateText(chat.state)}`;
+  const eps = epsText(chat, openCap);
+  if(eps) t += `\n\n━ 지난 장면 ━\n${eps}`;
+  return t;
+}
 
-━ 반드시 지킬 것 ━
-1. "지금 상태"가 가장 최신 사실이다. 앞선 대화 기록과 어긋나면 상태 쪽을 따른다.
-2. 상태에 죽었다고 적힌 인물은 다시 등장하지 않는다. 다친 인물은 다친 채로 움직인다.
-3. 사용자가 보여준 힘·평판·앞선 행동은 주변 인물의 반응에 반드시 반영한다. 압도당한 쪽이 아무 일 없었다는 듯 덤비지 않는다.
-4. 사용자의 대사나 행동을 대신 쓰지 않는다. 사용자 차례에서 멈춘다.
-5. 갈등을 억지로 만들지 않는다. 상황이 조용하면 조용한 채로 둔다.
-6. 서술은 *별표* 사이에, 대사는 그냥 쓴다. 3~6문장. 한국어.`;
+const ctxCost = msgs => msgs.reduce((a,m)=> a + estTok(m.content) + 4, 0);
+
+/* 원문 잘라내기는 한 턴씩 미는 대신 계단으로 내린다.
+   한 칸씩 밀면 매 턴 프리픽스가 깨져 캐시가 전혀 걸리지 않는다. */
+function stepCut(chat){
+  const keep = Number(S.settings.keep) || 14;
+  const slack = Math.max(4, Math.ceil(keep/2));
+  if(chat.cut == null) chat.cut = 0;
+  if(chat.msgs.length - chat.cut > keep + slack){
+    chat.cut = Math.max(chat.cut, chat.msgs.length - keep);
+    return true;
+  }
+  return false;
+}
+
+function assemble(chat){
+  const cap = Number(S.settings.cap) || 9000;
+  let openCap = Number(S.settings.epcap) || 3;
+  const moved = stepCut(chat);
+  const build = ()=>{
+    const hist = chat.msgs.slice(chat.cut).map(m=>({role:m.role, content:m.content}));
+    const live = {role:'system', content: buildLive(chat, openCap)};
+    const head = {role:'system', content: buildFixed(chat)};
+    if(!hist.length) return [head, live];
+    return [head, ...hist.slice(0,-1), live, hist[hist.length-1]];
+  };
+  let msgs = build(), n = ctxCost(msgs), trimmed = false;
+  while(n > cap && openCap > 0){ openCap--; msgs = build(); n = ctxCost(msgs); trimmed = true; }
+  while(n > cap && chat.msgs.length - chat.cut > 4){ chat.cut += 2; msgs = build(); n = ctxCost(msgs); trimmed = true; }
+  return {msgs, tokens:n, trimmed, moved};
+}
+
+/* 눈금용. 실제로 보낼 것과 같은 방식으로 재되, 호출은 하지 않는다. */
+function ctxPeek(chat){
+  const cap = Number(S.settings.cap) || 9000;
+  const openCap = Number(S.settings.epcap) || 3;
+  const hist = chat.msgs.slice(chat.cut ?? 0).map(m=>({role:m.role, content:m.content}));
+  const msgs = [{role:'system', content: buildFixed(chat)}, ...hist,
+                {role:'system', content: buildLive(chat, openCap)}];
+  return {tokens: ctxCost(msgs), cap};
 }
 
 async function updateState(chat){
+  const ep = nextEpNo(chat);
+  const roster = S.chars.filter(c=>c.no).map(c=>`${c.no}=${c.이름}`).join(', ') || '(없음)';
   const sys = `너는 이야기의 현재 상태를 기록한다. 기존 상태와 방금 오간 대화를 읽고, 갱신된 상태 전체를 JSON으로 낸다.
 - 바뀌지 않은 항목은 그대로 옮겨 적는다. 빠뜨리면 기억이 사라진다.
 - 인물의 죽음·부상·태도 변화는 반드시 반영한다.
+- 인물 번호는 아래 번호표를 그대로 쓴다. 번호표에 없는 인물은 번호를 비운다.
+- 관계단계는 경멸·흥미·인정·의존 가운데 어디쯤인지와 최근 움직인 방향을 함께 적는다.
+- 관계단계가 이번 대화에서 움직였다면 근거에피에 "에피${ep}"라고 적는다. 움직이지 않았으면 이전 값을 그대로 둔다.
+  (지금 벌어진 일은 아직 장면으로 접히지 않았으므로 다음 번호를 가리킨다.)
+- 경계도는 0~5. 장면목표는 그 인물이 이 장면에서 얻어내려는 것 한 줄.
 - 최근사건은 최대 6개, 오래된 것부터 지운다. 판을 뒤집은 사건은 남긴다.
 - 주인공평판에는 주변 인물이 주인공을 어떻게 보는지 한 줄로 적는다.
 - 한국어. JSON만:
-{"장면":"","시각":"","인물":[{"이름":"","상태":"","태도":""}],"주인공평판":"","최근사건":[],"미해결":[],"소지":[]}`;
+{"장면":"","시각":"","인물":[{"이름":"","번호":0,"상태":"","태도":"","감정":"","경계도":0,"관계단계":"","장면목표":"","방금받은인상":"","근거에피":""}],"주인공평판":"","최근사건":[],"미해결":[],"소지":[]}
+
+인물 번호표: ${roster}`;
   const last = chat.msgs.slice(-4).map(m=>`${m.role==='user'?'사용자':'이야기'}: ${m.content}`).join('\n\n');
   const usr = `기존 상태:\n${JSON.stringify(chat.state, null, 1)}\n\n방금 오간 대화:\n${last}`;
   chat.state = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:0.2}));
+}
+
+/* 장면 접기 — 유저가 누를 때만 돈다.
+   누가 눌렀다는 것 자체가 "이건 남길 만하다"는 표시라, 중요도를 따로 판정할 필요가 없다. */
+async function foldScene(chat, 제목){
+  const from = chat.cut ?? 0, to = chat.msgs.length;
+  if(to - from < 2) throw new Error('접을 만큼 대화가 쌓이지 않았습니다.');
+  const raw = chat.msgs.slice(from, to).map(m=>`${m.role==='user'?'사용자':'이야기'}: ${m.content}`).join('\n\n');
+  const no = nextEpNo(chat);
+  const roster = S.chars.filter(c=>c.no).map(c=>`${c.no}=${c.이름}`).join(', ') || '(없음)';
+  const sys = `너는 이야기의 한 장면을 나중에 다시 꺼내 쓸 수 있게 접어 둔다.
+- 대화 상대나 국면이 바뀌는 자리마다 조각으로 나눈다. 조각은 2~6개.
+- 조각 요약은 무슨 일이 있었는지 한두 문장. 인물은 이름 대신 번호로 적는다.
+- 급소: 나중에 이 장면을 되짚거나 놀릴 때 쓸 낱말 2~5개. 그 자리에서 실제로 쟁점이 된 말을 그대로 고른다.
+  ("명예를 아느냐"로 붙었다면 급소는 "명예"다. 뜻이 비슷한 다른 말로 바꾸지 않는다.)
+- 인물에는 이 장면에 실제로 있었던 인물의 번호만 넣는다. 이름만 스친 사람은 넣지 않는다.
+- 제목은 12자 안쪽.
+- 한국어. JSON만:
+{"제목":"","인물":[1,2],"급소":["",""],"조각":[{"상대":1,"요약":""}]}
+
+인물 번호표: ${roster}`;
+  const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:raw}], {json:true, temperature:0.3}));
+  chat.eps.push({
+    no, 제목: (제목||'').trim() || j.제목 || `장면 ${no}`,
+    인물: (j.인물||[]).filter(n=>typeof n==='number'),
+    급소: j.급소||[], 조각: j.조각||[],
+    중요도: 1, 범위:[from,to], 만든날: Date.now()
+  });
+  /* 직전 왕복 하나는 남긴다 — 접자마자 대화가 뚝 끊긴 느낌을 막는다. */
+  chat.cut = Math.max(from, to - 2);
+  return chat.eps[chat.eps.length-1];
 }
 
 /* ============================================================
@@ -536,7 +734,8 @@ function harnessEl(w){
 }
 
 /* ---------- 인물 ---------- */
-const blankChar = () => ({id:uid(), 이름:'', 한줄:'', 성격:'', 말투:'', 배경:'', 첫인사:'', 예시대사:'', worldId:''});
+const blankChar = () => ({id:uid(), no:nextNo(), 이름:'', 한줄:'', 성격:'', 말투:'', 배경:'', 첫인사:'', 예시대사:'',
+  원하는것:'', 실은필요한것:'', 두려운것:'', 자기기만:'', pin:false, worldId:''});
 
 function vChars(){
   if(S.open){ return charSheet(S.chars.find(c=>c.id===S.open)); }
@@ -560,7 +759,23 @@ function charSheet(c){
   topAction('← 목록', ()=> go('chars'));
   view.innerHTML = '';
   const F = [['이름','이름','input'],['한줄','한 줄로 말하면','input'],['성격','성격','textarea'],
-    ['말투','말투','textarea'],['배경','배경','textarea'],['첫인사','첫 장면','textarea'],['예시대사','예시 대사','textarea']];
+    ['말투','말투','textarea'],['배경','배경','textarea'],
+    ['원하는것','원하는 것  ―  의식해서 좇는 것','textarea'],
+    ['실은필요한것','실은 필요한 것  ―  본인은 모르는 결핍','textarea'],
+    ['두려운것','두려운 것  ―  절대 인정하지 않는 것','textarea'],
+    ['자기기만','자기기만  ―  스스로에게 하는 거짓말 한 줄','textarea'],
+    ['첫인사','첫 장면','textarea'],['예시대사','예시 대사','textarea']];
+
+  const pin = document.createElement('button');
+  pin.className = 'btn ghost';
+  const paintPin = ()=>{ pin.textContent = (c.pin?'★':'☆') + '  중요 인물' + (c.pin?' (지난 장면을 늘 펼침)':''); 
+    pin.style.color = c.pin ? 'var(--brass)' : 'var(--muted)'; };
+  paintPin();
+  pin.onclick = ()=>{ c.pin = !c.pin; save('chars'); paintPin(); };
+  const noTag = document.createElement('div');
+  noTag.style.cssText = 'font-family:var(--mono);font-size:11px;color:var(--muted);margin:2px 0 10px';
+  noTag.textContent = `인물 번호 ${c.no ?? '-'} — 요약 안에서 이름 대신 쓰입니다`;
+  view.appendChild(pin); view.appendChild(noTag);
 
   const ws = document.createElement('label'); ws.className='f';
   ws.innerHTML = `<span>속한 세계</span>`;
@@ -589,12 +804,18 @@ function charSheet(c){
       const sys = `너는 인터랙티브 소설의 인물을 짓는다. 세계와 어울리되 납작하지 않게 만든다.
 - 성격에는 반드시 약점이나 모순을 하나 넣는다.
 - 말투는 흉내 낼 수 있게 구체적으로 쓴다. 어미, 자주 쓰는 말, 침묵하는 순간.
+- 원하는것 / 실은필요한것 / 두려운것 / 자기기만 넷은 서로 부딪히게 짠다.
+  원하는 것을 좇을수록 실은 필요한 것에서 멀어지도록, 두려운 것이 자기기만의 이유가 되도록.
+- 자기기만은 인물이 스스로에게 하는 거짓말 한 줄. 말끝에서 새어나올 만한 문장으로 쓴다.
 - 첫 장면은 사용자가 바로 끼어들 수 있는 상황으로, *서술*과 대사를 섞어 3~5문장.
 - 예시 대사는 상황이 다른 세 줄.
-- 한국어. JSON만: {"한줄":"","성격":"","말투":"","배경":"","첫인사":"","예시대사":""}`;
+- 한국어. JSON만: {"한줄":"","성격":"","말투":"","배경":"","원하는것":"","실은필요한것":"","두려운것":"","자기기만":"","첫인사":"","예시대사":""}`;
       const usr = (w?`세계:\n${worldText(w)}\n\n`:'') + `인물:\n${charText(c)}`;
       const j = parseJSON(await llm([{role:'system',content:sys},{role:'user',content:usr}], {json:true, temperature:1.0}));
-      Object.assign(c, {한줄:j.한줄||c.한줄, 성격:j.성격, 말투:j.말투, 배경:j.배경, 첫인사:j.첫인사, 예시대사:j.예시대사});
+      Object.assign(c, {한줄:j.한줄||c.한줄, 성격:j.성격, 말투:j.말투, 배경:j.배경,
+        원하는것:j.원하는것||c.원하는것, 실은필요한것:j.실은필요한것||c.실은필요한것,
+        두려운것:j.두려운것||c.두려운것, 자기기만:j.자기기만||c.자기기만,
+        첫인사:j.첫인사, 예시대사:j.예시대사});
       save('chars'); render(); toast('만들었습니다. 고치고 싶은 곳은 바로 고치세요.');
     });
   };
@@ -606,7 +827,7 @@ function charSheet(c){
   start.onclick = ()=>{
     if(!c.이름) return toast('이름을 먼저 정해주세요.', true);
     const chat = {id:uid(), charId:c.id, worldId:c.worldId, 제목:c.이름, state:blankState(),
-      msgs: c.첫인사 ? [{role:'assistant', content:c.첫인사}] : [], 연날:Date.now()};
+      msgs: c.첫인사 ? [{role:'assistant', content:c.첫인사}] : [], eps:[], cut:0, 연날:Date.now()};
     S.chats.unshift(chat); save('chats'); go('chats', chat.id);
   };
   row.appendChild(start);
@@ -668,6 +889,91 @@ function chatView(chat){
   sb.appendChild(body);
   view.appendChild(sb);
 
+  /* 컨텍스트 게이지 — 얼마나 쌓였고, 접을 때가 됐는지 */
+  const ctx = document.createElement('div'); ctx.className='ctx';
+  ctx.innerHTML = `<div class="top"><span class="n"></span><span class="tail"></span>
+    <button class="fold">장면 접기</button></div><div class="bar"><div class="fill"></div></div>`;
+  const ctxN = ctx.querySelector('.n'), ctxTail = ctx.querySelector('.tail');
+  const ctxFill = ctx.querySelector('.fill'), foldBtn = ctx.querySelector('.fold');
+  const paintCtx = ()=>{
+    const {tokens, cap} = ctxPeek(chat);
+    const mark = Number(S.settings.mark) || Math.round(cap*0.7);
+    const pct = Math.min(100, Math.round(tokens/cap*100));
+    ctxN.textContent = `≈ ${tokens.toLocaleString()} / ${cap.toLocaleString()} 토큰`;
+    ctxTail.textContent = chat.eps.length ? `· 접어 둔 장면 ${chat.eps.length}` : '';
+    ctxFill.style.width = pct + '%';
+    ctxFill.dataset.lv = tokens >= cap ? 'over' : tokens >= mark ? 'warn' : '';
+    const ready = tokens >= mark;
+    foldBtn.dataset.ready = ready ? '1' : '0';
+    foldBtn.disabled = (chat.msgs.length - (chat.cut??0)) < 2;
+    foldBtn.textContent = ready ? '장면 접기 ●' : '장면 접기';
+  };
+  view.appendChild(ctx);
+
+  /* 지난 장면 */
+  const epw = document.createElement('div'); epw.className='eps';
+  const epOpen = DB.get('epopen', false);
+  epw.innerHTML = `<button class="hd">지난 장면<span class="chev">${epOpen?'닫기':'보기'}</span></button>`;
+  const epBody = document.createElement('div'); epBody.className='bd'; epBody.hidden = !epOpen;
+  const paintEps = ()=>{
+    epBody.innerHTML = '';
+    if(!chat.eps.length){
+      epBody.innerHTML = `<div style="font-size:11.5px;color:var(--muted);padding:4px 0 6px">
+        아직 접어 둔 장면이 없습니다. 대화가 쌓이면 위의 「장면 접기」로 남기세요.</div>`;
+      return;
+    }
+    chat.eps.slice().reverse().forEach(e=>{
+      const d = document.createElement('div'); d.className='ep';
+      const r1 = document.createElement('div'); r1.className='r1';
+      r1.innerHTML = `<span class="no">에피${e.no}</span>`;
+      const ti = document.createElement('input'); ti.className='ti'; ti.value = e.제목;
+      ti.addEventListener('input', ()=>{ e.제목 = ti.value; save('chats'); });
+      r1.appendChild(ti);
+      const st = document.createElement('div'); st.className='stars';
+      [1,2,3].forEach(n=>{
+        const b = document.createElement('button'); b.textContent='★';
+        b.dataset.on = (e.중요도||1) >= n ? '1' : '0';
+        b.onclick = ()=>{ e.중요도 = n; save('chats'); paintEps(); paintCtx(); };
+        st.appendChild(b);
+      });
+      r1.appendChild(st); d.appendChild(r1);
+      if(e.급소?.length){
+        const k = document.createElement('div'); k.className='kw';
+        k.textContent = '급소  ' + e.급소.join(' · ') +
+          (e.인물?.length ? '     인물  ' + e.인물.map(epName).join(', ') : '');
+        d.appendChild(k);
+      }
+      (e.조각||[]).forEach(f=>{
+        const g = document.createElement('div'); g.className='frag';
+        g.textContent = `— ${f.상대!=null?`[${epName(f.상대)}] `:''}${f.요약}`;
+        d.appendChild(g);
+      });
+      const rm = document.createElement('button'); rm.className='rm'; rm.textContent='이 장면 지우기';
+      rm.onclick = ()=>{ if(confirm(`에피${e.no} "${e.제목}"을 지웁니다.`)){
+        chat.eps = chat.eps.filter(x=>x.no!==e.no); save('chats'); paintEps(); paintCtx(); } };
+      d.appendChild(rm);
+      epBody.appendChild(d);
+    });
+  };
+  paintEps();
+  epw.querySelector('.hd').onclick = ()=>{
+    epBody.hidden = !epBody.hidden; DB.set('epopen', !epBody.hidden);
+    epw.querySelector('.chev').textContent = epBody.hidden ? '보기' : '닫기';
+  };
+  epw.appendChild(epBody);
+  view.appendChild(epw);
+
+  foldBtn.onclick = ()=>{
+    const 제목 = prompt('이 장면의 제목 (비우면 알아서 붙입니다)') ?? null;
+    if(제목 === null) return;
+    guard(foldBtn, '접는 중…', async ()=>{
+      const e = await foldScene(chat, 제목);
+      save('chats'); paintEps(); paintCtx(); drawMsgs();
+      if(epBody.hidden){ epBody.hidden = false; DB.set('epopen', true); epw.querySelector('.chev').textContent='닫기'; }
+      toast(`에피${e.no} 「${e.제목}」으로 접었습니다.`);
+    });
+  };
+
   /* 메시지 */
   const list = document.createElement('div'); view.appendChild(list);
   const drawMsgs = ()=>{
@@ -702,9 +1008,9 @@ function chatView(chat){
     list.appendChild(holder); scroll();
     const bodyEl = holder.querySelector('.body');
     try{
-      const keep = Number(S.settings.keep) || 14;
-      const hist = chat.msgs.slice(-keep).map(m=>({role:m.role, content:m.content}));
-      const out = await llm([{role:'system', content: buildSystem(chat)}, ...hist],
+      const {msgs, trimmed} = assemble(chat);
+      if(trimmed) toast('컨텍스트 상한에 걸려 옛 원문을 줄였습니다. 장면을 접어 두세요.');
+      const out = await llm(msgs,
         {temperature:0.95, onDelta: t=>{ bodyEl.classList.remove('thinking'); bodyEl.innerHTML = fmt(t); scroll(); }});
       chat.msgs.push({role:'assistant', content: out});
       save('chats'); drawMsgs();
@@ -712,6 +1018,7 @@ function chatView(chat){
         try{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); }
         catch(e){ toast('상태를 갱신하지 못했습니다. 대화는 그대로 이어집니다.', true); }
       }
+      paintCtx();
     }catch(e){
       holder.remove(); toast(e.message, true);
     }finally{ S.busy=false; sendBtn.disabled=false; scroll(); }
@@ -723,7 +1030,8 @@ function chatView(chat){
   comp.querySelector('#t-undo').onclick = ()=>{
     while(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='assistant') chat.msgs.pop();
     if(chat.msgs.length && chat.msgs[chat.msgs.length-1].role==='user') ta.value = chat.msgs.pop().content;
-    save('chats'); drawMsgs(); toast('한 걸음 되돌렸습니다.');
+    if(chat.cut > chat.msgs.length) chat.cut = Math.max(0, chat.msgs.length - 2);
+    save('chats'); drawMsgs(); paintCtx(); toast('한 걸음 되돌렸습니다.');
   };
   comp.querySelector('#t-regen').onclick = ()=>{
     if(S.busy) return;
@@ -731,8 +1039,9 @@ function chatView(chat){
     save('chats'); drawMsgs(); respond(true);
   };
   comp.querySelector('#t-sync').onclick = async (e)=>{
-    await guard(e.target, '읽는 중…', async ()=>{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); toast('상태를 다시 읽었습니다.'); });
+    await guard(e.target, '읽는 중…', async ()=>{ await updateState(chat); save('chats'); paint(); body.appendChild(edit); paintCtx(); toast('상태를 다시 읽었습니다.'); });
   };
+  paintCtx();
   comp.querySelector('#t-del').onclick = ()=>{
     if(confirm('이 대화를 지웁니다. 되돌릴 수 없습니다.')){ S.chats = S.chats.filter(x=>x.id!==chat.id); save('chats'); go('chats'); }
   };
@@ -760,7 +1069,14 @@ function vSettings(){
       <div class="hint">브라우저가 직접 호출을 막으면 프록시 주소로 바꾸세요.</div></label>
     <label class="f"><span>모델</span><input id="s-model" value="${esc(st.model)}"></label>
     <label class="f"><span>원문으로 넘길 최근 턴</span><input id="s-keep" type="number" min="4" max="40" value="${st.keep}">
-      <div class="hint">이보다 오래된 일은 상태 기록이 대신 기억합니다.</div></label>
+      <div class="hint">이보다 오래된 일은 상태 기록과 접어 둔 장면이 대신 기억합니다.
+      한 턴씩 밀어내지 않고 절반쯤 여유가 찼을 때 한 번에 줄입니다 — 그래야 캐시가 걸립니다.</div></label>
+    <label class="f"><span>턴당 컨텍스트 상한</span><input id="s-cap" type="number" min="2000" max="60000" step="500" value="${st.cap}">
+      <div class="hint">어림 토큰 기준. 넘으면 펼친 장면을 먼저 접고, 그래도 넘으면 옛 원문을 줄입니다.</div></label>
+    <label class="f"><span>장면 접기를 권할 지점</span><input id="s-mark" type="number" min="1000" max="60000" step="500" value="${st.mark}">
+      <div class="hint">여기를 넘으면 대화 화면의 「장면 접기」에 불이 들어옵니다.</div></label>
+    <label class="f"><span>한 번에 펼칠 지난 장면</span><input id="s-epcap" type="number" min="0" max="8" value="${st.epcap}">
+      <div class="hint">지금 자리에 있는 인물, 별표를 단 인물이 나오는 장면부터 펼칩니다. 나머지는 제목만 갑니다.</div></label>
     <label class="f"><span>상태 자동 기록</span>
       <select id="s-auto"><option value="1" ${st.autostate?'selected':''}>켜기</option><option value="0" ${!st.autostate?'selected':''}>끄기</option></select>
       <div class="hint">매 턴 한 번 더 호출합니다. 끄면 값은 싸지고 기억은 흐려집니다.</div></label>
@@ -773,9 +1089,10 @@ function vSettings(){
     el.addEventListener('change', ()=>{ st[k]=f(el.value); save('settings'); }); };
   bind('s-key','key'); bind('s-base','base'); bind('s-model','model');
   bind('s-keep','keep', v=>Number(v)); bind('s-auto','autostate', v=>v==='1');
+  bind('s-cap','cap', v=>Number(v)); bind('s-mark','mark', v=>Number(v)); bind('s-epcap','epcap', v=>Number(v));
 
   document.getElementById('s-out').onclick = ()=>{
-    const blob = new Blob([JSON.stringify({worlds:S.worlds, chars:S.chars, chats:S.chats}, null, 1)], {type:'application/json'});
+    const blob = new Blob([JSON.stringify({worlds:S.worlds, chars:S.chars, chats:S.chats, seq:S.seq}, null, 1)], {type:'application/json'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob); a.download = `모루-${new Date().toISOString().slice(0,10)}.json`; a.click();
   };
@@ -785,6 +1102,10 @@ function vSettings(){
       try{
         const j = JSON.parse(await i.files[0].text());
         S.worlds = j.worlds||[]; S.chars = j.chars||[]; S.chats = j.chats||[];
+        S.seq = j.seq || Math.max(0, ...S.chars.map(c=>c.no||0));
+        S.chars.forEach(c=>{ if(!c.no) c.no = nextNo(); });
+        S.chats.forEach(ch=>{ if(!Array.isArray(ch.eps)) ch.eps=[]; if(ch.cut==null) ch.cut=0; });
+        DB.set('seq', S.seq);
         save('worlds'); save('chars'); save('chats'); toast('가져왔습니다.'); render();
       }catch(e){ toast('파일을 읽지 못했습니다.', true); }
     };
